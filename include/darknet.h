@@ -211,6 +211,11 @@ struct layer {
     void(*backward_gpu)  (struct layer, struct network_state);
     void(*update_gpu)    (struct layer, int, float, float, float);
     layer *share_layer;
+
+    int bitwidth;
+    int max_bias;
+    int max_w;
+
     int train;
     int avgpool;
     int batch_normalize;

@@ -1113,6 +1113,61 @@ void fuse_conv_batchnorm(network net)
 
 void forward_blank_layer(layer l, network_state state) {}
 
+void calculate_fixed_weights(network net)
+{
+    int j;
+    for (j = 0; j < net.n; ++j) {
+        layer *l = &net.layers[j];
+
+        if (l->type == CONVOLUTIONAL) {
+            //printf(" Merges Convolutional-%d and batch_norm \n", j);
+
+            l->bitwidth = 8;
+            float second_max_bias = 0;
+            float delta_max_bias = 0;
+            for(int i = 0 ; i < l->n; i++)
+                if(fabs(l->biases[i]) > delta_max_bias)
+                {
+                    delta_max_bias = fabs(l->biases[i]);
+                    second_max_bias = delta_max_bias;
+                }
+            int shift_bias = (int)(ceil(log2(delta_max_bias))) + 1;
+            l->max_bias = l->bitwidth - shift_bias;
+            
+            float max_data = (powf(2, l->bitwidth - 1) - 1);
+            float min_data = (-powf(2, l->bitwidth - 1) + 1);
+            float scale_bias = powf(2, l->max_bias);
+
+            for(int i = 0 ; i < l->n; i++){
+                l->biases[i] *= scale_bias;
+                l->biases[i] = fmax(fmin(l->biases[i],max_data), min_data);
+                l->biases[i] = round (l->biases[i]) ;
+                l->biases[i] = l->biases[i] / scale_bias;
+            }
+
+            float second_max_weight = 0;
+            float delta_max_weight = 0;
+            for(int i = 0 ; i < l->nweights; i++)
+                if(fabs(l->weights[i]) > delta_max_weight)
+                {
+                    delta_max_weight = fabs(l->weights[i]);
+                    second_max_weight = delta_max_weight;
+                }
+            int shift_weight = (int)ceil(log2(delta_max_weight) ) + 1;
+            l->max_w = l->bitwidth - shift_weight;
+            
+            float scale_bias = powf(2, l->max_w);
+
+            for(int i = 0 ; i < l->n*l->c*l->size*l->size; i++){
+                l->weights[i] *= scale_bias;
+                l->weights[i] = fmax(fmin(l->weights[i],max_data), min_data);
+                l->weights[i] = round (l->weights[i]) ;
+                l->weights[i] /= scale_bias;
+            }
+        }
+    }
+}
+
 void calculate_binary_weights(network net)
 {
     int j;
