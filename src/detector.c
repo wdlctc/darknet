@@ -829,7 +829,7 @@ void rewrite_cfg(char *filename)
     while((line=fgetl(file)) != 0){
         strip(line);
         char buff[1024];
-        if (strcmp(file, "batch_normalize=1")==0) 
+        if (strcmp(line, "batch_normalize=1")==0) 
         {
             sprintf(buff, "batch_normalize=0\n");
             size_t curr = strlen(line);

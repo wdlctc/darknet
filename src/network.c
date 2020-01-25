@@ -1128,8 +1128,8 @@ void calculate_fixed_weights(network net)
             for(int i = 0 ; i < l->n; i++)
                 if(fabs(l->biases[i]) > delta_max_bias)
                 {
-                    delta_max_bias = fabs(l->biases[i]);
                     second_max_bias = delta_max_bias;
+                    delta_max_bias = fabs(l->biases[i]);
                 }
             int shift_bias = (int)(ceil(log2(delta_max_bias))) + 1;
             l->max_bias = l->bitwidth - shift_bias;
@@ -1150,19 +1150,19 @@ void calculate_fixed_weights(network net)
             for(int i = 0 ; i < l->nweights; i++)
                 if(fabs(l->weights[i]) > delta_max_weight)
                 {
-                    delta_max_weight = fabs(l->weights[i]);
                     second_max_weight = delta_max_weight;
+                    delta_max_weight = fabs(l->weights[i]);
                 }
             int shift_weight = (int)ceil(log2(delta_max_weight) ) + 1;
             l->max_w = l->bitwidth - shift_weight;
             
-            float scale_bias = powf(2, l->max_w);
+            float scale_weight = powf(2, l->max_w);
 
-            for(int i = 0 ; i < l->n*l->c*l->size*l->size; i++){
-                l->weights[i] *= scale_bias;
+            for(int i = 0 ; i < l->nweights; i++){
+                l->weights[i] *= scale_weight;
                 l->weights[i] = fmax(fmin(l->weights[i],max_data), min_data);
                 l->weights[i] = round (l->weights[i]) ;
-                l->weights[i] /= scale_bias;
+                l->weights[i] /= scale_weight;
             }
         }
     }
