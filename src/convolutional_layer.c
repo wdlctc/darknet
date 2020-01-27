@@ -1082,12 +1082,15 @@ void forward_convolutional_layer(convolutional_layer l, network_state state)
     if (l.bitwidth && l.quantized_switch)
     {
         float delta_max = 0;
-        for(int i = 0 ; i < l.inputs; i++)
+        float second_max = 0;
+        for(int i = 0 ; i < l.inputs*l.batch; i++)
             if(fabs(state.input[i]) > delta_max)
+            {
+                second_max = delta_max;
                 delta_max = fabs(state.input[i]);
-
-        int shift = (int)(ceil(log2(delta_max))) + 1;
-        *l.max_in = l.bitwidth - shift;
+            }
+        if(second_max > *l.max_value_in)
+            *l.max_value_in = second_max;
     }
 
     int m = l.n / l.groups;
@@ -1271,6 +1274,21 @@ void forward_convolutional_layer(convolutional_layer l, network_state state)
     else activate_array_cpu_custom(l.output, l.outputs*l.batch, l.activation);
 
     if(l.binary || l.xnor) swap_binary(&l);
+
+
+    if (l.bitwidth && l.quantized_switch)
+    {
+        float delta_max = 0;
+        float second_max = 0;
+        for(int i = 0 ; i < l.outputs*l.batch; i++)
+            if(fabs(l.output[i]) > delta_max)
+            {
+                second_max = delta_max;
+                delta_max = fabs(l.output[i]);
+            }
+        if(second_max > *l.max_value_out)
+            *l.max_value_out = second_max;
+    }
 
     //visualize_convolutional_layer(l, "conv_visual", NULL);
     //wait_until_press_key_cv();

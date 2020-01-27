@@ -846,8 +846,33 @@ void rewrite_cfg(network net, char *filename)
             fwrite(buff, 1, curr+1, output_file);
 
             layer *l = &net.layers[nu];
+
+
+            int shift_in = (int)ceil(log2(*l->max_value_in) ) + 1;
+            *l->max_in = l->bitwidth - shift_in;
+
+            int shift_out = (int)ceil(log2(*l->max_value_out) ) + 1;
+            *l->max_out = l->bitwidth - shift_out;
+
             sprintf(buff, "max_in=%d\n", *l->max_in);
-            printf("layer %d, max_in=%d\n",nu,*l->max_in);
+            //printf("layer %d, max_in=%d\n",nu,*l->max_in);
+            curr = strlen(buff);
+            fwrite(buff, 1, curr, output_file);
+
+            sprintf(buff, "max_out=%d\n", *l->max_out);
+            //printf("layer %d, max_in=%d\n",nu,*l->max_in);
+            curr = strlen(buff);
+            fwrite(buff, 1, curr, output_file);
+
+
+            sprintf(buff, "max_bias=%d\n", *l->max_bias);
+            //printf("layer %d, max_in=%d\n",nu,*l->max_in);
+            curr = strlen(buff);
+            fwrite(buff, 1, curr, output_file);
+
+
+            sprintf(buff, "max_w=%d\n", *l->max_w);
+            //printf("layer %d, max_in=%d\n",nu,*l->max_in);
             curr = strlen(buff);
             fwrite(buff, 1, curr, output_file);
         }
@@ -926,7 +951,7 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
     int i = 0;
     int t;
 
-    m = 100;
+    m = 40;
 
     const float thresh = .005;
     const float nms = .45;
