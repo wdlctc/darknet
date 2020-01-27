@@ -214,13 +214,13 @@ struct layer {
 
     int quantized_switch;
     int bitwidth;
-    int max_bias;
-    int max_w;
-    int max_in;
-    int max_out;
+    int* max_bias;
+    int* max_w;
+    int* max_in;
+    int* max_out;
 
-    float max_value_in;
-    float max_value_out;
+    float* max_value_in;
+    float* max_value_out;
 
     int train;
     int avgpool;

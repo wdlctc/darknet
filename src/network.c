@@ -1123,10 +1123,16 @@ void calculate_fixed_weights(network net)
             //printf(" Merges Convolutional-%d and batch_norm \n", j);
 
             l->bitwidth = 8;
-            l->max_value_in = 0;
-            l->max_value_out = 0;
             l->quantized_switch = 1;
-            
+
+            l->max_bias     =  calloc(1, sizeof(int));
+            l->max_w        =  calloc(1, sizeof(int));
+            l->max_in       =  calloc(1, sizeof(int));
+            l->max_out      =  calloc(1, sizeof(int));
+
+            l->max_value_in     = calloc(1, sizeof(float));
+            l->max_value_out    = calloc(1, sizeof(float));
+
             float second_max_bias = 0;
             float delta_max_bias = 0;
             for(int i = 0 ; i < l->n; i++)
@@ -1136,11 +1142,11 @@ void calculate_fixed_weights(network net)
                     delta_max_bias = fabs(l->biases[i]);
                 }
             int shift_bias = (int)(ceil(log2(delta_max_bias))) + 1;
-            l->max_bias = l->bitwidth - shift_bias;
+            *l->max_bias = l->bitwidth - shift_bias;
             
             float max_data = (powf(2, l->bitwidth - 1) - 1);
             float min_data = (-powf(2, l->bitwidth - 1) + 1);
-            float scale_bias = powf(2, l->max_bias);
+            float scale_bias = powf(2, *l->max_bias);
 
             for(int i = 0 ; i < l->n; i++){
                 l->biases[i] *= scale_bias;
@@ -1158,9 +1164,9 @@ void calculate_fixed_weights(network net)
                     delta_max_weight = fabs(l->weights[i]);
                 }
             int shift_weight = (int)ceil(log2(delta_max_weight) ) + 1;
-            l->max_w = l->bitwidth - shift_weight;
+            *l->max_w = l->bitwidth - shift_weight;
             
-            float scale_weight = powf(2, l->max_w);
+            float scale_weight = powf(2, *l->max_w);
 
             for(int i = 0 ; i < l->nweights; i++){
                 l->weights[i] *= scale_weight;

@@ -1087,7 +1087,7 @@ void forward_convolutional_layer(convolutional_layer l, network_state state)
                 delta_max = fabs(state.input[i]);
 
         int shift = (int)(ceil(log2(delta_max))) + 1;
-        l.max_in = l.bitwidth - shift;
+        *l.max_in = l.bitwidth - shift;
     }
 
     int m = l.n / l.groups;
