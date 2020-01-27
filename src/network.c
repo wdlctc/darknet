@@ -1137,14 +1137,6 @@ void calculate_fixed_weights(network net)
             l->bitwidth = 8;
             l->quantized_switch = 1;
 
-            l->max_bias     =  calloc(1, sizeof(int));
-            l->max_w        =  calloc(1, sizeof(int));
-            l->max_in       =  calloc(1, sizeof(int));
-            l->max_out      =  calloc(1, sizeof(int));
-
-            l->max_value_in     = calloc(1, sizeof(float));
-            l->max_value_out    = calloc(1, sizeof(float));
-
             float second_max_bias = 0;
             float delta_max_bias = 0;
             for(int i = 0 ; i < l->n; i++)

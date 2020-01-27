@@ -230,6 +230,22 @@ convolutional_layer parse_convolutional(list *options, size_params params)
         layer.eps = params.net.eps;
     }
 
+
+    layer.max_bias     =  calloc(1, sizeof(int));
+    layer.max_w        =  calloc(1, sizeof(int));
+    layer.max_in       =  calloc(1, sizeof(int));
+    layer.max_out      =  calloc(1, sizeof(int));
+
+    layer.max_value_in     = calloc(1, sizeof(float));
+    layer.max_value_out    = calloc(1, sizeof(float));
+
+    layer.bitwidth = option_find_float_quiet(options, "bitwidth", 0);
+    layer.quantized_switch = option_find_float_quiet(options, "quantized_switch", 0);
+    layer.max_in[0] = option_find_float_quiet(options, "max_in", -16);
+    layer.max_out[0] = option_find_float_quiet(options, "max_out", -16);
+    layer.max_w[0] = option_find_float_quiet(options, "max_w", -16);
+    layer.max_bias[0] = option_find_float_quiet(options, "max_bias", -16);
+
     return layer;
 }
 
