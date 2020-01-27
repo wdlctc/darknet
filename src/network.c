@@ -1126,6 +1126,9 @@ void calculate_fixed_weights(network net)
 
             l->max_in       =  calloc(1, sizeof(int));
             l->max_out      =  calloc(1, sizeof(int));
+
+            l->max_value_in     = calloc(1, sizeof(float));
+            l->max_value_out    = calloc(1, sizeof(float));
         }
 
         if (l->type == CONVOLUTIONAL) {
