@@ -34,7 +34,6 @@ __global__ void Trim2FixedPoint_kernel(int N, float ALPHA, float * X, float *Y, 
 
 extern "C" void Trim2FixedPoint_gpu(int N, float ALPHA, float * X, float * Y, int INCX, int bit_width, int rounding, int fl)
 {
-    cuda_random(rand, N);
     Trim2FixedPoint_kernel<<<cuda_gridsize(N), BLOCK>>>(N, ALPHA, X, Y, INCX, bit_width, rounding, fl);
     check_error(cudaPeekAtLastError());
 }
