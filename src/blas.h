@@ -47,6 +47,8 @@ void mean_delta_cpu(float *delta, float *variance, int batch, int filters, int s
 void  variance_delta_cpu(float *x, float *delta, float *mean, float *variance, int batch, int filters, int spatial, float *variance_delta);
 void normalize_delta_cpu(float *x, float *mean, float *variance, float *mean_delta, float *variance_delta, int batch, int filters, int spatial, float *delta);
 
+void Trim2FixedPoint_gpu(int N, float ALPHA, float * X, float * Y, int INCX, int bit_width, int rounding, int fl);
+
 void smooth_l1_cpu(int n, float *pred, float *truth, float *delta, float *error);
 void l2_cpu(int n, float *pred, float *truth, float *delta, float *error);
 void weighted_sum_cpu(float *a, float *b, float *s, int num, float *c);

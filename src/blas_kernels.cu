@@ -8,6 +8,37 @@
 #include "utils.h"
 #include "tree.h"
 
+__global__ void Trim2FixedPoint_kernel(int N, float ALPHA, float * X, float *Y, int INCX, int bit_width, int rounding, int fl)
+{   
+    float max_data = (powf(2, bit_width - 1) - 1) * powf(2, -fl);
+    float min_data = (-powf(2, bit_width - 1) + 1) * powf(2, -fl);
+    
+    int i = (blockIdx.x + blockIdx.y*gridDim.x) * blockDim.x + threadIdx.x;
+    if (i >= N) return;
+    Y[i*INCX] = fmax(fmin(X[i*INCX], max_data), min_data);
+    Y[i*INCX] /= powf(2, -fl);
+    switch (rounding) {
+    case 0: //Rounding_NEAREST:
+        Y[i*INCX] = rint (Y[i*INCX]);
+        break;
+    case 1: //Rounding_STOCHASTIC:
+        Y[i*INCX] = rint (Y[i*INCX]);
+        break;
+    default:
+        break;
+    }
+    Y[i*INCX] *= powf(2, -fl);
+    
+    //printf("%f %f %d %d\n",Y[i*INCX],X[i*INCX],fl,bit_width);
+}
+
+extern "C" void Trim2FixedPoint_gpu(int N, float ALPHA, float * X, float * Y, int INCX, int bit_width, int rounding, int fl, float *rand)
+{
+    cuda_random(rand, N);
+    Trim2FixedPoint_kernel<<<cuda_gridsize(N), BLOCK>>>(N, ALPHA, X, Y, INCX, bit_width, rounding, fl, rand);
+    check_error(cudaPeekAtLastError());
+}
+
 __global__ void scale_bias_kernel(float *output, float *biases, int n, int size)
 {
     int offset = blockIdx.x * blockDim.x + threadIdx.x;

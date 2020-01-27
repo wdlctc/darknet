@@ -555,6 +555,8 @@ struct layer {
     float * concat_gpu;
     float * concat_delta_gpu;
 
+    float *fix_input_gpu;
+
     float *binary_input_gpu;
     float *binary_weights_gpu;
     float *bin_conv_shortcut_in_gpu;

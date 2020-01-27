@@ -585,6 +585,8 @@ convolutional_layer make_convolutional_layer(int batch, int steps, int h, int w,
             l.binary_input_gpu = cuda_make_array(0, l.inputs*l.batch);
         }
 
+        l.fix_input_gpu = cuda_make_array(0, l.inputs*l.batch);
+
         if(batch_normalize){
             if (l.share_layer) {
                 l.scales_gpu = l.share_layer->scales_gpu;

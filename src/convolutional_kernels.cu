@@ -409,7 +409,12 @@ void forward_convolutional_layer_gpu(convolutional_layer l, network_state state)
         binarize_gpu(state.input, l.c*l.h*l.w*l.batch, l.binary_input_gpu);
         state.input = l.binary_input_gpu;
     }
-
+    
+    if (l.bitwidth)
+    {
+        Trim2FixedPoint_gpu(l.c*l.h*l.w*l.batch, 0, state.input, l.fix_input_gpu, 1, l.bitwidth, 0, l.max_in[0]);
+        state.input = l.fix_input_gpu;
+    }
     //fill_ongpu(l.outputs*l.batch, 0, l.output_gpu, 1);
 
 #ifdef CUDNN
