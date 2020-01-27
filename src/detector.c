@@ -847,7 +847,7 @@ void rewrite_cfg(network net, char *filename)
 
             layer *l = &net.layers[nu];
             sprintf(buff, "max_in=%d\n", l->max_in);
-            size_t curr = strlen(buff);
+            curr = strlen(buff);
             fwrite(buff, 1, curr, output_file);
         }
         else
@@ -924,6 +924,8 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
     int m = plist->size;
     int i = 0;
     int t;
+
+    m = 100;
 
     const float thresh = .005;
     const float nms = .45;
@@ -1278,6 +1280,8 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
     else printf("used Area-Under-Curve for each unique Recall \n");
 
     printf(" mean average precision (mAP@%0.2f) = %f, or %2.2f %% \n", iou_thresh, mean_average_precision, mean_average_precision * 100);
+
+    rewrite_cfg(net, cfgfile);
 
     for (i = 0; i < classes; ++i) {
         free(pr[i]);
