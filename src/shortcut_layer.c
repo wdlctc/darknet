@@ -170,6 +170,20 @@ void forward_shortcut_layer(const layer l, network_state state)
     if (l.activation == SWISH) activate_array_swish(l.output, l.outputs*l.batch, l.activation_input, l.output);
     else if (l.activation == MISH) activate_array_mish(l.output, l.outputs*l.batch, l.activation_input, l.output);
     else activate_array_cpu_custom(l.output, l.outputs*l.batch, l.activation);
+
+    if (l.bitwidth && l.quantized_switch)
+    {
+        float delta_max = 0;
+        float second_max = 0;
+        for(int i = 0 ; i < l.outputs*l.batch; i++)
+            if(fabs(l.output[i]) > delta_max)
+            {
+                second_max = delta_max;
+                delta_max = fabs(l.output[i]);
+            }
+        if(second_max > *l.max_value_out)
+            *l.max_value_out = second_max;
+    }
 }
 
 void backward_shortcut_layer(const layer l, network_state state)

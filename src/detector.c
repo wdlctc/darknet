@@ -876,6 +876,22 @@ void rewrite_cfg(network net, char *filename)
             curr = strlen(buff);
             fwrite(buff, 1, curr, output_file);
         }
+        else if (strcmp(line, "[shortcut]")==0) 
+        {
+            sprintf(buff, "%s\n", line);
+            size_t curr = strlen(line);
+            fwrite(buff, 1, curr+1, output_file);
+
+            layer *l = &net.layers[nu];
+
+            int shift_out = (int)ceil(log2(*l->max_value_out) ) + 1;
+            *l->max_out = l->bitwidth - shift_out;
+
+            sprintf(buff, "max_out=%d\n", *l->max_out);
+            //printf("layer %d, max_in=%d\n",nu,*l->max_in);
+            curr = strlen(buff);
+            fwrite(buff, 1, curr, output_file);
+        }
         else
         {
             sprintf(buff, "%s\n", line);

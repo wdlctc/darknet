@@ -1119,6 +1119,15 @@ void calculate_fixed_weights(network net)
     for (j = 0; j < net.n; ++j) {
         layer *l = &net.layers[j];
 
+        if (l->type == SHORTCUT)
+        {
+            l->bitwidth = 8;
+            l->quantized_switch = 1;
+
+            l->max_in       =  calloc(1, sizeof(int));
+            l->max_out      =  calloc(1, sizeof(int));
+        }
+
         if (l->type == CONVOLUTIONAL) {
             //printf(" Merges Convolutional-%d and batch_norm \n", j);
 
