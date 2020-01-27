@@ -846,7 +846,7 @@ void rewrite_cfg(network net, char *filename)
             fwrite(buff, 1, curr+1, output_file);
 
             layer *l = &net.layers[nu];
-            sprintf(buff, "max_in=%d\n", l->max_in);
+            sprintf(buff, "max_in=%d\n", *l->max_in);
             curr = strlen(buff);
             fwrite(buff, 1, curr, output_file);
         }
