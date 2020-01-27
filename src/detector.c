@@ -819,21 +819,36 @@ int detections_comparator(const void *pa, const void *pb)
     return 0;
 }
 
-void rewrite_cfg(char *filename)
+void rewrite_cfg(network net, char *filename)
 {
     FILE *file = fopen(filename, "r");
     FILE *output_file = fopen("bn_free.cfg", "wb");
     if(file == 0) file_error(filename);
     char *line;
-    int nu = 0;
+    int nu = -1;
     while((line=fgetl(file)) != 0){
         strip(line);
         char buff[1024];
+
+        if(line[0] == '[' && strcmp(line, "[net]")!=0)
+            nu++;
+
         if (strcmp(line, "batch_normalize=1")==0) 
         {
             sprintf(buff, "batch_normalize=0\n");
             size_t curr = strlen(line);
             fwrite(buff, 1, curr+1, output_file);
+        }
+        else if (strcmp(line, "[convolutional]")==0) 
+        {
+            sprintf(buff, "%s\n", line);
+            size_t curr = strlen(line);
+            fwrite(buff, 1, curr+1, output_file);
+
+            layer *l = &net.layers[nu];
+            sprintf(buff, "max_in=%d\n", l->max_in);
+            size_t curr = strlen(buff);
+            fwrite(buff, 1, curr, output_file);
         }
         else
         {
@@ -883,7 +898,7 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
         char buff[1024];
         sprintf(buff, "final.weights");
         save_weights(net, buff);
-        rewrite_cfg(cfgfile);
+        rewrite_cfg(net, cfgfile);
     }
     if (net.layers[net.n - 1].classes != names_size) {
         printf(" Error: in the file %s number of names %d that isn't equal to classes=%d in the file %s \n",

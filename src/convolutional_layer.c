@@ -443,7 +443,7 @@ convolutional_layer make_convolutional_layer(int batch, int steps, int h, int w,
     l.out_w = out_w;
     l.out_c = n;
     l.outputs = l.out_h * l.out_w * l.out_c;
-    l.inputs = l.w * l.h * l.c;
+    l.inputs = l.w * l.h * l.c; 
     l.activation = activation;
 
     l.output = (float*)xcalloc(total_batch*l.outputs, sizeof(float));
@@ -1077,6 +1077,17 @@ void forward_convolutional_layer(convolutional_layer l, network_state state)
         swap_binary(&l);
         binarize_cpu(state.input, l.c*l.h*l.w*l.batch, l.binary_input);
         state.input = l.binary_input;
+    }
+
+    if (l.bitwidth && l.quantized_switch)
+    {
+        float delta_max = 0;
+        for(int i = 0 ; i < l.inputs; i++)
+            if(fabs(state.input[i]) > delta_max)
+                delta_max = fabs(state.input[i]);
+
+        int shift = (int)(ceil(log2(delta_max))) + 1;
+        l.max_in = l.bitwidth - shift;
     }
 
     int m = l.n / l.groups;

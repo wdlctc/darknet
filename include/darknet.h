@@ -212,9 +212,15 @@ struct layer {
     void(*update_gpu)    (struct layer, int, float, float, float);
     layer *share_layer;
 
+    int quantized_switch;
     int bitwidth;
     int max_bias;
     int max_w;
+    int max_in;
+    int max_out;
+
+    float max_value_in;
+    float max_value_out;
 
     int train;
     int avgpool;

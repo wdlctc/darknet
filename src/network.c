@@ -1123,6 +1123,10 @@ void calculate_fixed_weights(network net)
             //printf(" Merges Convolutional-%d and batch_norm \n", j);
 
             l->bitwidth = 8;
+            l->max_value_in = 0;
+            l->max_value_out = 0;
+            l->quantized_switch = 1;
+            
             float second_max_bias = 0;
             float delta_max_bias = 0;
             for(int i = 0 ; i < l->n; i++)
