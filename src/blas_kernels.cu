@@ -32,10 +32,10 @@ __global__ void Trim2FixedPoint_kernel(int N, float ALPHA, float * X, float *Y, 
     //printf("%f %f %d %d\n",Y[i*INCX],X[i*INCX],fl,bit_width);
 }
 
-extern "C" void Trim2FixedPoint_gpu(int N, float ALPHA, float * X, float * Y, int INCX, int bit_width, int rounding, int fl, float *rand)
+extern "C" void Trim2FixedPoint_gpu(int N, float ALPHA, float * X, float * Y, int INCX, int bit_width, int rounding, int fl)
 {
     cuda_random(rand, N);
-    Trim2FixedPoint_kernel<<<cuda_gridsize(N), BLOCK>>>(N, ALPHA, X, Y, INCX, bit_width, rounding, fl, rand);
+    Trim2FixedPoint_kernel<<<cuda_gridsize(N), BLOCK>>>(N, ALPHA, X, Y, INCX, bit_width, rounding, fl);
     check_error(cudaPeekAtLastError());
 }
 
