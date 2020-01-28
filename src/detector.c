@@ -977,7 +977,7 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
     int i = 0;
     int t;
 
-    m = 40;
+    m = 500;
 
     const float thresh = .005;
     const float nms = .45;
@@ -1021,9 +1021,6 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
         thr[t] = load_data_in_thread(args);
     }
     time_t start = time(0);
-    for (int iter = 0; iter < 10; iter++)
-    {
-    
     for (i = nthreads; i < m + nthreads; i += nthreads) {
         fprintf(stderr, "\r%d", i);
         for (t = 0; t < nthreads && (i + t - nthreads) < m; ++t) {
@@ -1173,12 +1170,10 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
             free_image(val[t]);
             free_image(val_resized[t]);
         }
+        if(i%100 == 0)
+            rewrite_cfg(net, cfgfile);
     }
 
-
-    rewrite_cfg(net, cfgfile);
-
-    }
 
     //for (t = 0; t < nthreads; ++t) {
     //    pthread_join(thr[t], 0);
