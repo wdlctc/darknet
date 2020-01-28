@@ -1081,15 +1081,26 @@ void forward_convolutional_layer(convolutional_layer l, network_state state)
         state.input = l.binary_input;
     }
 
-    if (l.bitwidth && l.quantized_switch)
+    if (l.bitwidth)
     {
         float delta_max = 0;
         float second_max = 0;
+
+        float max_data = (powf(2, l.bitwidth - 1) - 1);
+        float min_data = (-powf(2, l.bitwidth - 1) + 1);
+        float scale = powf(2, *l.max_in);
         for(int i = 0 ; i < l.inputs*l.batch; i++)
             if(fabs(state.input[i]) > delta_max)
             {
                 second_max = delta_max;
                 delta_max = fabs(state.input[i]);
+                if(!l.quantized_switch)
+                {
+                    state.input[i]*=scale;
+                    state.input[i]=fmax(fmin(state.input[i],max_data), min_data);
+                    state.input[i] = round (state.input[i]) ;
+                    state.input[i] = state.input[i] / scale;       
+                }
             }
         if(second_max > *l.max_value_in)
             *l.max_value_in = second_max;

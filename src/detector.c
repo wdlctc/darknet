@@ -846,6 +846,7 @@ void rewrite_cfg(network net, char *filename)
             fwrite(buff, 1, curr+1, output_file);
 
             layer *l = &net.layers[nu];
+            l->quantized_switch = 0;
 
             sprintf(buff, "bitwidth=8\n");
             //printf("layer %d, max_in=%d\n",nu,*l->max_in);
@@ -855,9 +856,11 @@ void rewrite_cfg(network net, char *filename)
 
             int shift_in = (int)ceil(log2(*l->max_value_in) ) + 1;
             *l->max_in = l->bitwidth - shift_in;
+            *l->max_value_in = 0;
 
             int shift_out = (int)ceil(log2(*l->max_value_out) ) + 1;
             *l->max_out = l->bitwidth - shift_out;
+            *l->max_value_out = 0;
 
             sprintf(buff, "max_in=%d\n", *l->max_in);
             //printf("layer %d, max_in=%d\n",nu,*l->max_in);
@@ -889,8 +892,10 @@ void rewrite_cfg(network net, char *filename)
 
             layer *l = &net.layers[nu];
 
+            l->quantized_switch = 0;
             int shift_out = (int)ceil(log2(*l->max_value_out) ) + 1;
             *l->max_out = l->bitwidth - shift_out;
+            *l->max_value_out = 0;
 
             sprintf(buff, "max_out=%d\n", *l->max_out);
             //printf("layer %d, max_in=%d\n",nu,*l->max_in);
@@ -945,7 +950,7 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
         char buff[1024];
         sprintf(buff, "final.weights");
         save_weights(net, buff);
-        rewrite_cfg(net, cfgfile);
+        //rewrite_cfg(net, cfgfile);
     }
     if (net.layers[net.n - 1].classes != names_size) {
         printf(" Error: in the file %s number of names %d that isn't equal to classes=%d in the file %s \n",
@@ -1016,6 +1021,9 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
         thr[t] = load_data_in_thread(args);
     }
     time_t start = time(0);
+    for (int iter = 0; iter < 10; iter++)
+    {
+    
     for (i = nthreads; i < m + nthreads; i += nthreads) {
         fprintf(stderr, "\r%d", i);
         for (t = 0; t < nthreads && (i + t - nthreads) < m; ++t) {
@@ -1329,6 +1337,8 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
     printf(" mean average precision (mAP@%0.2f) = %f, or %2.2f %% \n", iou_thresh, mean_average_precision, mean_average_precision * 100);
 
     rewrite_cfg(net, cfgfile);
+
+    }
 
     for (i = 0; i < classes; ++i) {
         free(pr[i]);
