@@ -1175,6 +1175,11 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
         }
     }
 
+
+    rewrite_cfg(net, cfgfile);
+
+    }
+
     //for (t = 0; t < nthreads; ++t) {
     //    pthread_join(thr[t], 0);
     //}
@@ -1336,9 +1341,6 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
 
     printf(" mean average precision (mAP@%0.2f) = %f, or %2.2f %% \n", iou_thresh, mean_average_precision, mean_average_precision * 100);
 
-    rewrite_cfg(net, cfgfile);
-
-    }
 
     for (i = 0; i < classes; ++i) {
         free(pr[i]);
