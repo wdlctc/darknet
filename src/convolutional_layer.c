@@ -1289,7 +1289,7 @@ void forward_convolutional_layer(convolutional_layer l, network_state state)
     if(l.binary || l.xnor) swap_binary(&l);
 
 
-    if (l.bitwidth && l.quantized_switch)
+    if (l.bitwidth)
     {
         float delta_max = 0;
         float second_max = 0;
