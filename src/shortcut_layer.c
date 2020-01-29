@@ -171,7 +171,7 @@ void forward_shortcut_layer(const layer l, network_state state)
     else if (l.activation == MISH) activate_array_mish(l.output, l.outputs*l.batch, l.activation_input, l.output);
     else activate_array_cpu_custom(l.output, l.outputs*l.batch, l.activation);
 
-    if (l.bitwidth && l.quantized_switch)
+    if (l.bitwidth)
     {
         float delta_max = 0;
         float second_max = 0;
