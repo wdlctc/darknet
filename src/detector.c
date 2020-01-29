@@ -977,7 +977,7 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
     int i = 0;
     int t;
 
-    m = 800;
+    m = 2000;
 
     const float thresh = .005;
     const float nms = .45;
@@ -1170,7 +1170,7 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
             free_image(val[t]);
             free_image(val_resized[t]);
         }
-        if(i%200 == 0)
+        if(i%400 == 0)
             rewrite_cfg(net, cfgfile);
     }
 
