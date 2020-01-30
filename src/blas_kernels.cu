@@ -8,6 +8,47 @@
 #include "utils.h"
 #include "tree.h"
 
+__device__ void swap(float &a, float &b){
+    float t = a;
+    a = b;
+    b = t;
+}
+
+__global__ void bitonic_sort_kernel(int N, float* array, float* output)
+{
+    extern __shared__ float shared_array[];
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    shared_array[tid] = arr[tid];
+    __syncthreads();
+
+    for(int i = 2; i <= N; i*=2 ){
+        for(int j = i/2; j > 0; j/=2){
+            int tid_comp = tid ^ j;
+            if(tid_comp > tid){
+                if((tid & i) == 0){ //ascending
+                    if(shared_array[tid] > shared_array[tid_comp])
+                    {
+                        swap(shared_array[tid], shared_array[tid_comp]);
+                    }
+                }
+                else{ //desending
+                    if(shared_array[tid] < shared_array[tid_comp])
+                    {
+                        swap(shared_array[tid], shared_array[tid_comp]);
+                    }
+                }
+            }
+        }
+    }
+    output[tid] = shared_array[tid];
+}
+
+extern "C" void bitonic_sort_gpu(int N, float* array, float* output)
+{
+    bitonic_sort_kernel<<<cuda_gridsize(N), BLOCK>>>(N, array, outout);
+    check_error(cudaPeekAtLastError());
+}
+
 __global__ void Trim2FixedPoint_kernel(int N, float ALPHA, float * X, float *Y, int INCX, int bit_width, int rounding, int fl)
 {   
     float max_data = (powf(2, bit_width - 1) - 1) * powf(2, -fl);
