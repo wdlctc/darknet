@@ -14,42 +14,90 @@ __device__ void swap(float &a, float &b){
     b = t;
 }
 
-__global__ void bitonic_sort_kernel(int N, float* array, float* output)
+__global__ void bitonic_sort_step(float *dev_values, int j, int k, int N)
 {
-    //extern __shared__ float shared_array[N];
-    int tid = (blockIdx.x + blockIdx.y*gridDim.x) * blockDim.x + threadIdx.x;
-    if(tid >= N)return;
-    output[tid] = array[tid];
-    __syncthreads();
+  unsigned int i, ixj; /* Sorting partners: i and ixj */
+  int tid = threadIdx.x + blockDim.x * blockIdx.x;
+  int tid_comp = tid ^ j;
 
-    for(int i = 2; i <= N; i*=2 ){
-        for(int j = i/2; j > 0; j/=2){
-            int tid_comp = tid ^ j;
-            if(tid_comp > tid && tid_comp <= N){
-                if((tid & i) == 0){ //ascending
-                    if(output[tid] < output[tid_comp])
-                    {
-                        swap(output[tid], output[tid_comp]);
-                    }
-                }
-                else{ //desending
-                    if(output[tid] > output[tid_comp])
-                    {
-                        swap(output[tid], output[tid_comp]);
-                    }
-                }
-            }
-            __syncthreads();
+  if(tid_comp > tid && tid_comp <= N){
+      if((tid & k) == 0){ //ascending
+        if(dev_values[tid] < dev_values[tid_comp])
+        {
+            swap(dev_values[tid], dev_values[tid_comp]);
         }
-    }
-    //output[tid] = shared_array[tid];
+      }
+      else{ //desending
+        if(dev_values[tid] > dev_values[tid_comp])
+        {
+            swap(dev_values[tid], dev_values[tid_comp]);
+        }
+      }
+  }
 }
 
-extern "C" void bitonic_sort_gpu(int N, float* array, float* output)
+/**
+ * Inplace bitonic sort using CUDA.
+ */
+ extern "C" void bitonic_sort_gpu((int N, float* array, float* output)
 {
-    bitonic_sort_kernel<<<cuda_gridsize(N), BLOCK>>>(N, array, output);
-    check_error(cudaPeekAtLastError());
+  float *dev_values;
+  size_t size = N * sizeof(float);
+
+  cudaMalloc((void**) &dev_values, size);
+  cudaMemcpy(dev_values, array, size, cudaMemcpyDeviceToDevice);
+
+  dim3 blocks(32768,1);    /* Number of blocks   */
+  dim3 threads(512,1);  /* Number of threads  */
+
+  int j, k;
+  /* Major step */
+  for (k = 2; k <= N; k <<= 1) {
+    /* Minor step */
+    for (j=k>>1; j>0; j=j>>1) {
+      bitonic_sort_step<<<blocks, threads>>>(dev_values, j, k, N);
+    }
+  }
+  cudaMemcpy(output, dev_values, size, cudaMemcpyDeviceToDevice);
+  cudaFree(dev_values);
 }
+
+// __global__ void bitonic_sort_kernel(int N, float* array, float* output)
+// {
+//     //extern __shared__ float shared_array[N];
+//     int tid = (blockIdx.x + blockIdx.y*gridDim.x) * blockDim.x + threadIdx.x;
+//     if(tid >= N)return;
+//     output[tid] = array[tid];
+//     __syncthreads();
+
+//     for(int i = 2; i <= N; i*=2 ){
+//         for(int j = i/2; j > 0; j/=2){
+//             int tid_comp = tid ^ j;
+//             if(tid_comp > tid && tid_comp <= N){
+//                 if((tid & i) == 0){ //ascending
+//                     if(output[tid] < output[tid_comp])
+//                     {
+//                         swap(output[tid], output[tid_comp]);
+//                     }
+//                 }
+//                 else{ //desending
+//                     if(output[tid] > output[tid_comp])
+//                     {
+//                         swap(output[tid], output[tid_comp]);
+//                     }
+//                 }
+//             }
+//             __syncthreads();
+//         }
+//     }
+//     //output[tid] = shared_array[tid];
+// }
+
+// extern "C" void bitonic_sort_gpu(int N, float* array, float* output)
+// {
+//     bitonic_sort_kernel<<<cuda_gridsize(N), BLOCK>>>(N, array, output);
+//     check_error(cudaPeekAtLastError());
+// }
 
 __global__ void Trim2FixedPoint_kernel(int N, float ALPHA, float * X, float *Y, int INCX, int bit_width, int rounding, int fl)
 {   
