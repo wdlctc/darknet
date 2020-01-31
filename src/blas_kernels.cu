@@ -16,7 +16,6 @@ __device__ void swap(float &a, float &b){
 
 __global__ void bitonic_sort_step(float *dev_values, int j, int k, int N)
 {
-  unsigned int i, ixj; /* Sorting partners: i and ixj */
   int tid = threadIdx.x + blockDim.x * blockIdx.x;
   int tid_comp = tid ^ j;
 
