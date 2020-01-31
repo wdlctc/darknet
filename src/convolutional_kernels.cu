@@ -415,7 +415,16 @@ void forward_convolutional_layer_gpu(convolutional_layer l, network_state state)
         bitonic_sort_gpu(l.c*l.h*l.w*l.batch, state.input, l.fix_input_gpu);
         float delta_max;
         cudaMemcpy(l.fix_input, l.fix_input_gpu, 2*sizeof(float), cudaMemcpyDeviceToHost);
-        printf("%f %f\n",l.fix_input[0], l.fix_input[1]);
+        //printf("%f %f\n",l.fix_input[0], l.fix_input[1]);
+        delta_max = l.fix_input[0];
+        cudaMemcpy(l.fix_input, state.input, l.c*l.h*l.w*l.batch*sizeof(float), cudaMemcpyDeviceToHost);
+
+        for(int i = 0; i < l.c*l.h*l.w*l.batch; i++)
+        {
+            if(delta_max < abs(l.fix_input[i]))
+                printf("no");
+        }
+
         //cudaMemcpy(&delta_max, state.input, 1, cudaMemcpyDeviceToHost);
         //printf("%f\n",delta_max);
 
