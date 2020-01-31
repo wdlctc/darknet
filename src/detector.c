@@ -951,7 +951,7 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
 
         char buff[1024];
         sprintf(buff, "final.weights");
-        save_weights(net, buff);
+        //save_weights(net, buff);
         //rewrite_cfg(net, cfgfile);
     }
     if (net.layers[net.n - 1].classes != names_size) {
