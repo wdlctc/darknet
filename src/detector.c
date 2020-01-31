@@ -949,9 +949,6 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
         calculate_binary_weights(net);
         calculate_fixed_weights(net);
 
-        char buff[1024];
-        sprintf(buff, "final.weights");
-        //save_weights(net, buff);
         //rewrite_cfg(net, cfgfile);
     }
     if (net.layers[net.n - 1].classes != names_size) {
@@ -1173,7 +1170,12 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
             free_image(val_resized[t]);
         }
         if(i%100 == 0)
+        {
+            char buff[1024];
+            sprintf(buff, "final.weights");
+            //save_weights(net, buff);
             rewrite_cfg(net, cfgfile);
+        }
     }
 
 
