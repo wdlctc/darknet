@@ -51,7 +51,7 @@ extern "C" void bitonic_sort_gpu(int N, float* array, float* output)
 
   size_t length = power_of_two * sizeof(float);
 
-  cudaMalloc((void**) &dev_values, power_of_two);
+  cudaMalloc((void**) &dev_values, length);
   cudaMemcpy(dev_values, array, size, cudaMemcpyDeviceToDevice);
 
   int j, k;
