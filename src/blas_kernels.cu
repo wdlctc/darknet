@@ -16,10 +16,10 @@ __device__ void swap(float &a, float &b){
 
 __global__ void bitonic_sort_kernel(int N, float* array, float* output)
 {
-    extern __shared__ float shared_array[N];
+    //extern __shared__ float shared_array[N];
     int tid = (blockIdx.x + blockIdx.y*gridDim.x) * blockDim.x + threadIdx.x;
     if(tid >= N)return;
-    shared_array[tid] = array[tid];
+    output[tid] = array[tid];
     __syncthreads();
 
     for(int i = 2; i <= N; i*=2 ){
@@ -27,26 +27,27 @@ __global__ void bitonic_sort_kernel(int N, float* array, float* output)
             int tid_comp = tid ^ j;
             if(tid_comp > tid && tid_comp <= N){
                 if((tid & i) == 0){ //ascending
-                    if(shared_array[tid] > shared_array[tid_comp])
+                    if(output[tid] > output[tid_comp])
                     {
-                        swap(shared_array[tid], shared_array[tid_comp]);
+                        swap(output[tid], output[tid_comp]);
                     }
                 }
                 else{ //desending
-                    if(shared_array[tid] < shared_array[tid_comp])
+                    if(output[tid] < output[tid_comp])
                     {
-                        swap(shared_array[tid], shared_array[tid_comp]);
+                        swap(output[tid], output[tid_comp]);
                     }
                 }
             }
+            __syncthreads();
         }
     }
-    output[tid] = shared_array[tid];
+    //output[tid] = shared_array[tid];
 }
 
 extern "C" void bitonic_sort_gpu(int N, float* array, float* output)
 {
-    bitonic_sort_kernel<<<cuda_gridsize(N), BLOCK, N*sizeof(int)>>>(N, array, output);
+    bitonic_sort_kernel<<<cuda_gridsize(N), BLOCK>>>(N, array, output);
     check_error(cudaPeekAtLastError());
 }
 
