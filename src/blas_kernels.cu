@@ -19,7 +19,8 @@ __global__ void bitonic_sort_step(float *dev_values, int j, int k, int N)
   int tid = threadIdx.x + blockDim.x * blockIdx.x;
   int tid_comp = tid ^ j;
 
-  dev_values[tid] = abs(dev_values[tid]);
+  if(tid_comp < N)
+    dev_values[tid] = abs(dev_values[tid]);
   __syncthreads();
 
   if(tid_comp > tid && tid_comp < N){
