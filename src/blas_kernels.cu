@@ -18,13 +18,14 @@ __global__ void bitonic_sort_kernel(int N, float* array, float* output)
 {
     extern __shared__ float shared_array[];
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    if(tid >= N)return;
     shared_array[tid] = array[tid];
     __syncthreads();
 
     for(int i = 2; i <= N; i*=2 ){
         for(int j = i/2; j > 0; j/=2){
             int tid_comp = tid ^ j;
-            if(tid_comp > tid){
+            if(tid_comp > tid && tid_comp <= N){
                 if((tid & i) == 0){ //ascending
                     if(shared_array[tid] > shared_array[tid_comp])
                     {
