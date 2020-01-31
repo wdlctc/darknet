@@ -16,11 +16,13 @@ __device__ void swap(float &a, float &b){
 
 __global__ void bitonic_sort_step(float *dev_values, int j, int k, int N)
 {
-  int tid = threadIdx.x + blockDim.x * blockIdx.x;
+  int tid = (blockIdx.x + blockIdx.y*gridDim.x) * blockDim.x + threadIdx.x;
   int tid_comp = tid ^ j;
 
   if(tid < N)
     dev_values[tid] = abs(dev_values[tid]);
+  else 
+    dev_values[tid] = 0;
   __syncthreads();
 
   if(tid_comp > tid && tid_comp < N){
@@ -50,15 +52,12 @@ extern "C" void bitonic_sort_gpu(int N, float* array, float* output)
   cudaMalloc((void**) &dev_values, size);
   cudaMemcpy(dev_values, array, size, cudaMemcpyDeviceToDevice);
 
-  dim3 blocks(32768,1);    /* Number of blocks   */
-  dim3 threads(512,1);  /* Number of threads  */
-
   int j, k;
   /* Major step */
-  for (k = 2; k <= N; k <<= 1) {
+  for (k = 2; k < N*2; k <<= 1) {
     /* Minor step */
     for (j=k>>1; j>0; j=j>>1) {
-      bitonic_sort_step<<<blocks, threads>>>(dev_values, j, k, N);
+      bitonic_sort_step<<<cuda_gridsize(N), BLOCK>>>(dev_values, j, k, N);
     }
   }
   cudaMemcpy(output, dev_values, size, cudaMemcpyDeviceToDevice);
