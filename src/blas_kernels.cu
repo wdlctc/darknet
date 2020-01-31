@@ -16,8 +16,8 @@ __device__ void swap(float &a, float &b){
 
 __global__ void bitonic_sort_kernel(int N, float* array, float* output)
 {
-    extern __shared__ float shared_array[N];
-    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    extern __shared__ float shared_array[];
+    int tid = (blockIdx.x + blockIdx.y*gridDim.x) * blockDim.x + threadIdx.x;
     if(tid >= N)return;
     shared_array[tid] = array[tid];
     __syncthreads();
@@ -46,7 +46,7 @@ __global__ void bitonic_sort_kernel(int N, float* array, float* output)
 
 extern "C" void bitonic_sort_gpu(int N, float* array, float* output)
 {
-    bitonic_sort_kernel<<<cuda_gridsize(N), BLOCK>>>(N, array, output);
+    bitonic_sort_kernel<<<cuda_gridsize(N), BLOCK, N*sizeof(int)>>>(N, array, output);
     check_error(cudaPeekAtLastError());
 }
 
