@@ -27,13 +27,13 @@ __global__ void bitonic_sort_kernel(int N, float* array, float* output)
             int tid_comp = tid ^ j;
             if(tid_comp > tid && tid_comp <= N){
                 if((tid & i) == 0){ //ascending
-                    if(output[tid] > output[tid_comp])
+                    if(output[tid] < output[tid_comp])
                     {
                         swap(output[tid], output[tid_comp]);
                     }
                 }
                 else{ //desending
-                    if(output[tid] < output[tid_comp])
+                    if(output[tid] > output[tid_comp])
                     {
                         swap(output[tid], output[tid_comp]);
                     }
