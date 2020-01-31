@@ -19,11 +19,10 @@ __global__ void bitonic_sort_step(float *dev_values, int j, int k, int N)
   int tid = (blockIdx.x + blockIdx.y*gridDim.x) * blockDim.x + threadIdx.x;
   int tid_comp = tid ^ j;
 
-  if(tid < N)
-    dev_values[tid] = abs(dev_values[tid]);
+  dev_values[tid] = abs(dev_values[tid]);
   __syncthreads();
 
-  if(tid_comp > tid && tid_comp < N){
+  if(tid_comp > tid){
       if((tid & k) == 0){ //ascending
         if(dev_values[tid] < dev_values[tid_comp])
         {
@@ -45,21 +44,22 @@ __global__ void bitonic_sort_step(float *dev_values, int j, int k, int N)
 extern "C" void bitonic_sort_gpu(int N, float* array, float* output)
 {
   float *dev_values;
+  int power_of_two = 1;
+  while(power_of_two < N)
+    power_of_two<<=1;
   size_t size = N * sizeof(float);
 
-  cudaMalloc((void**) &dev_values, size);
-  cudaMemcpy(dev_values, array, size, cudaMemcpyDeviceToDevice);
+  size_t length = power_of_two * sizeof(float);
 
-  int l;
-  for (l = 2; l < N*2; l <<= 1);
-  bitonic_sort_step<<<cuda_gridsize(N), BLOCK>>>(dev_values, l/2, l, N);
+  cudaMalloc((void**) &dev_values, power_of_two);
+  cudaMemcpy(dev_values, array, size, cudaMemcpyDeviceToDevice);
 
   int j, k;
   /* Major step */
-  for (k = 2; k <= N; k <<= 1) {
+  for (k = 2; k<=power_of_two; k <<= 1) {
     /* Minor step */
     for (j=k>>1; j>0; j=j>>1) {
-      bitonic_sort_step<<<cuda_gridsize(N), BLOCK>>>(dev_values, j, k, N);
+      bitonic_sort_step<<<cuda_gridsize(power_of_two), BLOCK>>>(dev_values, j, k, power_of_two);
     }
   }
   cudaMemcpy(output, dev_values, size, cudaMemcpyDeviceToDevice);
