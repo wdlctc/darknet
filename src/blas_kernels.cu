@@ -56,7 +56,7 @@ extern "C" void bitonic_sort_gpu(int N, float* array, float* output)
 
   int j, k;
   /* Major step */
-  for (k = 2; k <=power_of_two; k <<= 1) {
+  for (k = 2; k<=power_of_two; k <<= 1) {
     /* Minor step */
     for (j=k>>1; j>0; j=j>>1) {
       bitonic_sort_step<<<cuda_gridsize(power_of_two), BLOCK>>>(dev_values, j, k, power_of_two);
