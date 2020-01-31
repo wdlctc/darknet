@@ -38,7 +38,7 @@ __global__ void bitonic_sort_step(float *dev_values, int j, int k, int N)
 /**
  * Inplace bitonic sort using CUDA.
  */
- extern "C" void bitonic_sort_gpu((int N, float* array, float* output)
+extern "C" void bitonic_sort_gpu(int N, float* array, float* output)
 {
   float *dev_values;
   size_t size = N * sizeof(float);
