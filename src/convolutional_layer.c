@@ -447,6 +447,7 @@ convolutional_layer make_convolutional_layer(int batch, int steps, int h, int w,
     l.activation = activation;
 
     l.output = (float*)xcalloc(total_batch*l.outputs, sizeof(float));
+    l.fix_input = (float*)xcalloc(l.inputs * l.batch, sizeof(float));
 #ifndef GPU
     if (train) l.delta = (float*)xcalloc(total_batch*l.outputs, sizeof(float));
 #endif  // not GPU
