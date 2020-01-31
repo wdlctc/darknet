@@ -16,7 +16,7 @@ __device__ void swap(float &a, float &b){
 
 __global__ void bitonic_sort_kernel(int N, float* array, float* output)
 {
-    extern __shared__ float shared_array[];
+    extern __shared__ float shared_array[N];
     int tid = (blockIdx.x + blockIdx.y*gridDim.x) * blockDim.x + threadIdx.x;
     if(tid >= N)return;
     shared_array[tid] = array[tid];
