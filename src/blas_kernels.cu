@@ -43,7 +43,7 @@ __global__ void bitonic_sort_kernel(int N, float* array)
 {
     extern __shared__ float shared_array[];
     int tid = (blockIdx.x + blockIdx.y*gridDim.x) * blockDim.x + threadIdx.x;
-    shared_arr[tid] = array[tid];
+    shared_array[tid] = array[tid];
     __syncthreads();
     //if(tid >= N)return;
 
