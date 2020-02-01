@@ -843,19 +843,19 @@ void rewrite_cfg(network net, char *filename)
             size_t curr = strlen(line);
             fwrite(buff, 1, curr+1, output_file);
         }
-        else if (strncmp(line, "quantized_switch", 17)==0) 
+        else if (strncmp(line, "quantized_switch", 16)==0) 
         {
             continue;
         }
-        else if (strncmp(line, "max_out", 8)==0) 
+        else if (strncmp(line, "max_out", 7)==0) 
         {
             continue;
         }
-        else if (strncmp(line, "max_bias", 10)==0) 
+        else if (strncmp(line, "max_bias", 8)==0) 
         {
             continue;
         }
-        else if (strncmp(line, "max_w", 6)==0) 
+        else if (strncmp(line, "max_w", 5)==0) 
         {
             continue;
         }
