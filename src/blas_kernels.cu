@@ -38,38 +38,6 @@ __global__ void bitonic_sort_step(float *dev_values, int j, int k, int N)
   }
 }
 
-
-__global__ void bitonic_sort_kernel(int N, float* array)
-{
-    extern __shared__ float shared_array[N];
-    int tid = (blockIdx.x + blockIdx.y*gridDim.x) * blockDim.x + threadIdx.x;
-    shared_array[tid] = array[tid];
-    __syncthreads();
-    //if(tid >= N)return;
-
-    for(int i = 2; i <= N; i*=2 ){
-        for(int j = i/2; j > 0; j/=2){
-            int tid_comp = tid ^ j;
-            if(tid_comp > tid && tid_comp <= N){
-                if((tid & i) == 0){ //ascending
-                    if(shared_array[tid] < shared_array[tid_comp])
-                    {
-                        swap(shared_array[tid], shared_array[tid_comp]);
-                    }
-                }
-                else{ //desending
-                    if(shared_array[tid] > shared_array[tid_comp])
-                    {
-                        swap(shared_array[tid], shared_array[tid_comp]);
-                    }
-                }
-            }
-            __syncthreads();
-        }
-    }
-    array[tid] = shared_array[tid];
-}
-
 /**
  * Inplace bitonic sort using CUDA.
  */
@@ -86,16 +54,15 @@ extern "C" void bitonic_sort_gpu(int N, float* array, float* output)
   cudaMalloc((void**) &dev_values, length);
   cudaMemcpy(dev_values, array, size, cudaMemcpyDeviceToDevice);
 
-  bitonic_sort_kernel<<<cuda_gridsize(power_of_two), BLOCK>>>(power_of_two, dev_values);
+  int j, k;
+  /* Major step */
+  for (k = 2; k<=power_of_two; k <<= 1) {
+    /* Minor step */
+    for (j=k>>1; j>0; j=j>>1) {
+      bitonic_sort_step<<<cuda_gridsize(power_of_two), BLOCK>>>(dev_values, j, k, power_of_two);
+    }
+  }
 
-//   int j, k;
-//   /* Major step */
-//   for (k = 2; k<=power_of_two; k <<= 1) {
-//     /* Minor step */
-//     for (j=k>>1; j>0; j=j>>1) {
-//       bitonic_sort_step<<<cuda_gridsize(power_of_two), BLOCK>>>(dev_values, j, k, power_of_two);
-//     }
-//   }
   cudaMemcpy(output, dev_values, size, cudaMemcpyDeviceToDevice);
   cudaFree(dev_values);
 }
