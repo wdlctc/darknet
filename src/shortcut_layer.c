@@ -238,6 +238,19 @@ void forward_shortcut_layer_gpu(const layer l, network_state state)
     else if (l.activation == MISH) activate_array_mish_ongpu(l.output_gpu, l.outputs*l.batch, l.activation_input_gpu, l.output_gpu);
     else activate_array_ongpu(l.output_gpu, l.outputs*l.batch, l.activation);
 
+    if (l.bitwidth)
+    {
+        bitonic_sort_gpu(l.outputs*l.batch, l.output_gpu, l.fix_output_gpu);
+        float delta_max;
+        //cudaMemcpy(l.fix_input, l.fix_input_gpu, 2*sizeof(float), cudaMemcpyDeviceToHost);
+        cudaMemcpy(l.fix_output, l.fix_output_gpu, 2*sizeof(float), cudaMemcpyDeviceToHost);
+        //printf("%f %f\n",l.fix_input[0], l.fix_input[1]);
+        delta_max = l.fix_output[1];
+
+        if(delta_max > *l.max_value_out)
+            *l.max_value_out = delta_max;
+    }
+
 }
 
 void backward_shortcut_layer_gpu(const layer l, network_state state)
