@@ -822,6 +822,8 @@ int detections_comparator(const void *pa, const void *pb)
 void rewrite_cfg(network net, char *filename)
 {
     FILE *file = fopen(filename, "r");
+    char name[1024];
+    sprintf(name, "new_%s", filename);
     FILE *output_file = fopen("bn_free.cfg", "wb");
     printf("yes\n");
     if(file == 0) file_error(filename);
