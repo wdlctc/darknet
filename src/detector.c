@@ -846,7 +846,6 @@ void rewrite_cfg(network net, char *filename)
             fwrite(buff, 1, curr+1, output_file);
 
             layer *l = &net.layers[nu];
-            l->quantized_switch = 2;
             int off = 1;
 
             sprintf(buff, "quantized_switch=1\n");
@@ -897,7 +896,6 @@ void rewrite_cfg(network net, char *filename)
             fwrite(buff, 1, curr+1, output_file);
 
             layer *l = &net.layers[nu];
-            l->quantized_switch = 2;
 
             int off = 1;
             int shift_out = (int)ceil(log2(*l->max_value_out) ) + off;
@@ -959,7 +957,7 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
         calculate_binary_weights(net);
         calculate_fixed_weights(net);
 
-        rewrite_cfg(net, cfgfile);
+        //rewrite_cfg(net, cfgfile);
     }
     if (net.layers[net.n - 1].classes != names_size) {
         printf(" Error: in the file %s number of names %d that isn't equal to classes=%d in the file %s \n",
