@@ -848,7 +848,7 @@ void rewrite_cfg(network net, char *filename)
             layer *l = &net.layers[nu];
             int off = 1;
 
-            sprintf(buff, "quantized_switch=1\n");
+            sprintf(buff, "quantized_switch=2\n");
             //printf("layer %d, max_in=%d\n",nu,*l->max_in);
             curr = strlen(buff);
             fwrite(buff, 1, curr, output_file);
@@ -902,7 +902,7 @@ void rewrite_cfg(network net, char *filename)
             *l->max_out = l->bitwidth - shift_out;
             *l->max_value_out = 0;
 
-            sprintf(buff, "quantized_switch=1\n");
+            sprintf(buff, "quantized_switch=2\n");
             //printf("layer %d, max_in=%d\n",nu,*l->max_in);
             curr = strlen(buff);
             fwrite(buff, 1, curr, output_file);
