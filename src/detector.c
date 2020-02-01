@@ -986,7 +986,7 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
     int i = 0;
     int t;
 
-    m = 1000;
+    m = 100;
 
     const float thresh = .005;
     const float nms = .45;
@@ -1179,7 +1179,7 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
             free_image(val[t]);
             free_image(val_resized[t]);
         }
-        if(i%1000 == 0)
+        if(i%100 == 0)
         {
             char buff[1024];
             sprintf(buff, "final.weights");
