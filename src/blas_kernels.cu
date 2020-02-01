@@ -25,6 +25,7 @@ __global__ void bitonic_sort_step(float *dev_values, int j, int k, int N)
   int limit = j < BLOCK ? 0 : j/2;
 
   for(j = j; j > limit; j/=2){
+  int tid_comp = tid ^ j;
   if(tid_comp > tid){
       if((tid & k) == 0){ //ascending
         if(dev_values[tid] < dev_values[tid_comp])
