@@ -448,6 +448,7 @@ convolutional_layer make_convolutional_layer(int batch, int steps, int h, int w,
 
     l.output = (float*)xcalloc(total_batch*l.outputs, sizeof(float));
     l.fix_input = (float*)xcalloc(l.inputs * l.batch, sizeof(float));
+    l.fix_output = (float*)xcalloc(l.outputs * l.batch, sizeof(float));
 #ifndef GPU
     if (train) l.delta = (float*)xcalloc(total_batch*l.outputs, sizeof(float));
 #endif  // not GPU
@@ -587,6 +588,7 @@ convolutional_layer make_convolutional_layer(int batch, int steps, int h, int w,
         }
 
         l.fix_input_gpu = cuda_make_array(0, l.inputs*l.batch);
+        l.fix_output_gpu = cuda_make_array(0, l.outputs*l.batch);
 
         if(batch_normalize){
             if (l.share_layer) {

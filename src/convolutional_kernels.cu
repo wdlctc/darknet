@@ -415,9 +415,12 @@ void forward_convolutional_layer_gpu(convolutional_layer l, network_state state)
         bitonic_sort_gpu(l.c*l.h*l.w*l.batch, state.input, l.fix_input_gpu);
         float delta_max;
         //cudaMemcpy(l.fix_input, l.fix_input_gpu, 2*sizeof(float), cudaMemcpyDeviceToHost);
-        //cudaMemcpy(l.fix_input, l.fix_input_gpu, 2*sizeof(float), cudaMemcpyDeviceToHost);
+        cudaMemcpy(l.fix_input, l.fix_input_gpu, 2*sizeof(float), cudaMemcpyDeviceToHost);
         //printf("%f %f\n",l.fix_input[0], l.fix_input[1]);
-        //delta_max = l.fix_input[0];
+        delta_max = l.fix_input[1];
+
+        if(delta_max > *l.max_value_in)
+            *l.max_value_in = delta_max;
         //cudaMemcpy(l.fix_input, state.input, l.c*l.h*l.w*l.batch*sizeof(float), cudaMemcpyDeviceToHost);
 
         // for(int i = 0; i < l.c*l.h*l.w*l.batch; i++)
@@ -646,6 +649,19 @@ void forward_convolutional_layer_gpu(convolutional_layer l, network_state state)
         forward_convolutional_layer_gpu(*(l.input_layer), s);
         simple_copy_ongpu(l.outputs*l.batch, l.output_gpu, l.input_antialiasing_gpu);
         simple_copy_ongpu(l.input_layer->outputs*l.input_layer->batch, l.input_layer->output_gpu, l.output_gpu);
+    }
+
+    if (l.bitwidth)
+    {
+        bitonic_sort_gpu(l.outputs*l.batch, l.output_gpu, l.fix_output_gpu);
+        float delta_max;
+        //cudaMemcpy(l.fix_input, l.fix_input_gpu, 2*sizeof(float), cudaMemcpyDeviceToHost);
+        cudaMemcpy(l.fix_output, l.fix_output_gpu, 2*sizeof(float), cudaMemcpyDeviceToHost);
+        //printf("%f %f\n",l.fix_input[0], l.fix_input[1]);
+        delta_max = l.fix_output[1];
+
+        if(delta_max > *l.max_value_out)
+            *l.max_value_out = delta_max;
     }
 }
 

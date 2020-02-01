@@ -457,6 +457,7 @@ struct layer {
     float *dc_cpu;
 
     float *fix_input;
+    float *fix_output;
     float *binary_input;
     uint32_t *bin_re_packed_input;
     char *t_bit_input;
@@ -557,6 +558,7 @@ struct layer {
     float * concat_delta_gpu;
 
     float *fix_input_gpu;
+    float *fix_output_gpu;
 
     float *binary_input_gpu;
     float *binary_weights_gpu;
