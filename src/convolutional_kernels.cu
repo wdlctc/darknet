@@ -1197,8 +1197,11 @@ void pull_convolutional_layer(convolutional_layer l)
 {
     cuda_pull_array_async(l.weights_gpu, l.weights, l.nweights);
     cuda_pull_array_async(l.biases_gpu, l.biases, l.n);
-    cuda_pull_array_async(l.weight_updates_gpu, l.weight_updates, l.nweights);
-    cuda_pull_array_async(l.bias_updates_gpu, l.bias_updates, l.n);
+
+    if (l.train) {
+        cuda_pull_array_async(l.weight_updates_gpu, l.weight_updates, l.nweights);
+        cuda_pull_array_async(l.bias_updates_gpu, l.bias_updates, l.n);
+    }
     if (l.batch_normalize){
         cuda_pull_array_async(l.scales_gpu, l.scales, l.n);
         cuda_pull_array_async(l.rolling_mean_gpu, l.rolling_mean, l.n);
