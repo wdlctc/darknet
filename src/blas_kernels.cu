@@ -84,7 +84,7 @@ extern "C" void bitonic_sort_gpu(int N, float* array, float* output)
   cudaMalloc((void**) &dev_values, length);
   cudaMemcpy(dev_values, array, size, cudaMemcpyDeviceToDevice);
 
-  bitonic_sort_kernel<<<cuda_gridsize(N), BLOCK>>>(N, dev_values);
+  bitonic_sort_kernel<<<cuda_gridsize(power_of_two), BLOCK>>>(power_of_two, dev_values);
 
 //   int j, k;
 //   /* Major step */
