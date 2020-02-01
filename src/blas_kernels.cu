@@ -41,7 +41,7 @@ __global__ void bitonic_sort_step(float *dev_values, int j, int k, int N)
 
 __global__ void bitonic_sort_kernel(int N, float* array)
 {
-    extern __shared__ float shared_array[];
+    extern __shared__ float shared_array[N];
     int tid = (blockIdx.x + blockIdx.y*gridDim.x) * blockDim.x + threadIdx.x;
     shared_array[tid] = array[tid];
     __syncthreads();
