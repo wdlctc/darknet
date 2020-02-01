@@ -824,6 +824,7 @@ void rewrite_cfg(network net, char *filename)
     FILE *file = fopen(filename, "r");
     char name[1024];
     sprintf(name, "new_%s", filename);
+    printf("%s\n",name);
     FILE *output_file = fopen(name, "wb");
     printf("yes\n");
     if(file == 0) file_error(filename);
