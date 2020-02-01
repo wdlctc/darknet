@@ -52,15 +52,15 @@ __global__ void bitonic_sort_kernel(int N, float* array)
             int tid_comp = tid ^ j;
             if(tid_comp > tid && tid_comp <= N){
                 if((tid & i) == 0){ //ascending
-                    if(shared_arr[tid] < shared_arr[tid_comp])
+                    if(shared_array[tid] < shared_array[tid_comp])
                     {
-                        swap(shared_arr[tid], shared_arr[tid_comp]);
+                        swap(shared_array[tid], shared_array[tid_comp]);
                     }
                 }
                 else{ //desending
-                    if(shared_arr[tid] > shared_arr[tid_comp])
+                    if(shared_array[tid] > shared_array[tid_comp])
                     {
-                        swap(shared_arr[tid], shared_arr[tid_comp]);
+                        swap(shared_array[tid], shared_array[tid_comp]);
                     }
                 }
             }
