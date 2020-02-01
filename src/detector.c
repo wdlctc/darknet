@@ -976,7 +976,7 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
     int i = 0;
     int t;
 
-    m = 100;
+    m = 1000;
 
     const float thresh = .005;
     const float nms = .45;
