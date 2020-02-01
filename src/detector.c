@@ -847,6 +847,7 @@ void rewrite_cfg(network net, char *filename)
 
             layer *l = &net.layers[nu];
             l->quantized_switch = 2;
+            l->batch_normalize = 0;
             int off = 1;
 
             sprintf(buff, "quantized_switch=1\n");
@@ -1181,10 +1182,10 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
         }
         if(i%100 == 0)
         {
+            rewrite_cfg(net, cfgfile);
             char buff[1024];
             sprintf(buff, "final.weights");
             save_weights(net, buff);
-            rewrite_cfg(net, cfgfile);
         }
     }
 
