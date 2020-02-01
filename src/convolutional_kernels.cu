@@ -425,11 +425,11 @@ void forward_convolutional_layer_gpu(convolutional_layer l, network_state state)
                 *l.max_value_in = delta_max;
         }
 
-        if(l.quantized_switch >= 1)
-        {
-            Trim2FixedPoint_gpu(l.c*l.h*l.w*l.batch, 0, state.input, l.fix_input_gpu, 1, l.bitwidth, 0, *l.max_in);
-            state.input = l.fix_input_gpu;
-        }
+        // if(l.quantized_switch >= 1)
+        // {
+        //     Trim2FixedPoint_gpu(l.c*l.h*l.w*l.batch, 0, state.input, l.fix_input_gpu, 1, l.bitwidth, 0, *l.max_in);
+        //     state.input = l.fix_input_gpu;
+        // }
         //cudaMemcpy(l.fix_input, state.input, l.c*l.h*l.w*l.batch*sizeof(float), cudaMemcpyDeviceToHost);
 
         // for(int i = 0; i < l.c*l.h*l.w*l.batch; i++)

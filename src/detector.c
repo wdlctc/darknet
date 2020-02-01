@@ -847,7 +847,6 @@ void rewrite_cfg(network net, char *filename)
 
             layer *l = &net.layers[nu];
             l->quantized_switch = 2;
-            l->batch_normalize = 0;
             int off = 1;
 
             sprintf(buff, "quantized_switch=1\n");
