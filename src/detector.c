@@ -847,6 +847,14 @@ void rewrite_cfg(network net, char *filename)
         {
             continue;
         }
+        else if (strncmp(line, "bitwidth", 8)==0) 
+        {
+            continue;
+        }
+        else if (strncmp(line, "max_in", 6)==0) 
+        {
+            continue;
+        }
         else if (strncmp(line, "max_out", 7)==0) 
         {
             continue;
