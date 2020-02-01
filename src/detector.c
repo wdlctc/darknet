@@ -846,6 +846,7 @@ void rewrite_cfg(network net, char *filename)
             fwrite(buff, 1, curr+1, output_file);
 
             layer *l = &net.layers[nu];
+            l->quantized_switch = 3;
             int off = 1;
 
             sprintf(buff, "quantized_switch=2\n");
@@ -896,6 +897,7 @@ void rewrite_cfg(network net, char *filename)
             fwrite(buff, 1, curr+1, output_file);
 
             layer *l = &net.layers[nu];
+            l->quantized_switch = 3;
 
             int off = 1;
             int shift_out = (int)ceil(log2(*l->max_value_out) ) + off;
@@ -1177,7 +1179,7 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
             free_image(val[t]);
             free_image(val_resized[t]);
         }
-        if(i%100 == 0)
+        if(i%1000 == 0)
         {
             rewrite_cfg(net, cfgfile);
             char buff[1024];
