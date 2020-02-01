@@ -22,6 +22,9 @@ __global__ void bitonic_sort_step(float *dev_values, int j, int k, int N)
   dev_values[tid] = abs(dev_values[tid]);
   __syncthreads();
 
+  int limit = j < BLOCK ? 0 : j/2;
+
+  for(int j = j; j > limit; j/=2){
   if(tid_comp > tid){
       if((tid & k) == 0){ //ascending
         if(dev_values[tid] < dev_values[tid_comp])
@@ -35,6 +38,8 @@ __global__ void bitonic_sort_step(float *dev_values, int j, int k, int N)
             swap(dev_values[tid], dev_values[tid_comp]);
         }
       }
+  }
+  __syncthreads();
   }
 }
 
@@ -60,6 +65,8 @@ extern "C" void bitonic_sort_gpu(int N, float* array, float* output)
     /* Minor step */
     for (j=k>>1; j>0; j=j>>1) {
       bitonic_sort_step<<<cuda_gridsize(power_of_two), BLOCK>>>(dev_values, j, k, power_of_two);
+      if(j < BLOCK)
+        break;
     }
   }
 
