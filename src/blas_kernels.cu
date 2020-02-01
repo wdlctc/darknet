@@ -41,31 +41,33 @@ __global__ void bitonic_sort_step(float *dev_values, int j, int k, int N)
 
 __global__ void bitonic_sort_kernel(int N, float* array)
 {
-    //extern __shared__ float shared_array[N];
+    extern __shared__ float shared_array[];
     int tid = (blockIdx.x + blockIdx.y*gridDim.x) * blockDim.x + threadIdx.x;
-    if(tid >= N)return;
+    shared_arr[tid] = arr[tid];
+    __syncthreads();
+    //if(tid >= N)return;
 
     for(int i = 2; i <= N; i*=2 ){
         for(int j = i/2; j > 0; j/=2){
             int tid_comp = tid ^ j;
             if(tid_comp > tid && tid_comp <= N){
                 if((tid & i) == 0){ //ascending
-                    if(array[tid] < array[tid_comp])
+                    if(shared_arr[tid] < shared_arr[tid_comp])
                     {
-                        swap(array[tid], array[tid_comp]);
+                        swap(shared_arr[tid], shared_arr[tid_comp]);
                     }
                 }
                 else{ //desending
-                    if(array[tid] > array[tid_comp])
+                    if(shared_arr[tid] > shared_arr[tid_comp])
                     {
-                        swap(array[tid], array[tid_comp]);
+                        swap(shared_arr[tid], shared_arr[tid_comp]);
                     }
                 }
             }
             __syncthreads();
         }
     }
-    //output[tid] = shared_array[tid];
+    array[tid] = shared_array[tid];
 }
 
 /**
