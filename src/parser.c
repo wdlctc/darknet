@@ -1640,6 +1640,7 @@ void save_weights_upto(network net, char *filename, int cutoff)
     int i;
     for(i = 0; i < net.n && i < cutoff; ++i){
         layer l = net.layers[i];
+        printf("%d %d\n",i,l.type);
         if (l.type == CONVOLUTIONAL && l.share_layer == NULL) {
             save_convolutional_weights(l, fp);
         } if (l.type == SHORTCUT && l.nweights > 0) {
