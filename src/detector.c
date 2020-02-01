@@ -1179,11 +1179,11 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
             free_image(val[t]);
             free_image(val_resized[t]);
         }
-        if(i%100 == 0)
+        if(i%1000 == 0)
         {
             char buff[1024];
             sprintf(buff, "final.weights");
-            //save_weights(net, buff);
+            save_weights(net, buff);
             rewrite_cfg(net, cfgfile);
         }
     }
