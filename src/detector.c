@@ -823,6 +823,7 @@ void rewrite_cfg(network net, char *filename)
 {
     FILE *file = fopen(filename, "r");
     FILE *output_file = fopen("bn_free.cfg", "wb");
+    printf("yes\n");
     if(file == 0) file_error(filename);
     char *line;
     int nu = -1;
