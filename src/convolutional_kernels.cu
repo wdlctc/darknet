@@ -412,7 +412,7 @@ void forward_convolutional_layer_gpu(convolutional_layer l, network_state state)
     
     if (l.bitwidth)
     {
-        if(l.quantized_switch >= 1)
+        if(l.quantized_switch & 1)
         {
             bitonic_sort_gpu(l.c*l.h*l.w*l.batch, state.input, l.fix_input_gpu);
             float delta_max;
@@ -425,7 +425,7 @@ void forward_convolutional_layer_gpu(convolutional_layer l, network_state state)
                 *l.max_value_in = delta_max;
         }
 
-        if(l.quantized_switch >= 2)
+        if(l.quantized_switch & 2)
         {
             Trim2FixedPoint_gpu(l.c*l.h*l.w*l.batch, 0, state.input, l.fix_input_gpu, 1, l.bitwidth, 0, *l.max_in);
             state.input = l.fix_input_gpu;
@@ -662,7 +662,7 @@ void forward_convolutional_layer_gpu(convolutional_layer l, network_state state)
 
     if (l.bitwidth)
     {
-        if(l.quantized_switch >= 2)
+        if(l.quantized_switch & 1)
         {
             bitonic_sort_gpu(l.outputs*l.batch, l.output_gpu, l.fix_output_gpu);
             float delta_max;
