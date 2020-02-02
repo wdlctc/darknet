@@ -969,6 +969,8 @@ int quantized_network(network net)
             else if(l->quantized_switch == 1)
             {
                 l->quantized_switch = 2;
+
+                printf("\n%d %d\n", j, *l->max_in);
                 continue;
             }
         }
