@@ -972,7 +972,7 @@ int quantized_network(network net)
                 int shift_in = (int)ceil(log2(*l->max_value_in) ) + 1;
                 *l->max_in = l->bitwidth - shift_in;
 
-                printf("\n%d %f\n", j, *l->max_value_in);
+                printf("\n%d %f %d\n", j, *l->max_value_in,*l->max_in);
                 //continue;
             }
         }
