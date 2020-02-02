@@ -1094,7 +1094,8 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
             val_resized[t] = buf_resized[t];
         }
         for (t = 0; t < nthreads && (i + t) < m; ++t) {
-            args.path = paths[i + t];
+            const int image_index = (i + t) % 100;
+            args.path = paths[image_index];
             args.im = &buf[t];
             args.resized = &buf_resized[t];
             thr[t] = load_data_in_thread(args);
