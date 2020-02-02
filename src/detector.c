@@ -1084,7 +1084,7 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
     }
     time_t start = time(0);
     for (i = nthreads; i < m + nthreads; i += nthreads) {
-        if(i % 100 == 0)
+        if(i % 100 == nthreads)
         {
             int finish = quantized_network(net);
             if(finish) break;
