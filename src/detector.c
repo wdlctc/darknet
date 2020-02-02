@@ -932,6 +932,11 @@ void rewrite_cfg(network net, char *filename)
             *l->max_out = l->bitwidth - shift_out;
             *l->max_value_out = 0;
 
+            sprintf(buff, "bitwidth=8\n");
+            //printf("layer %d, max_in=%d\n",nu,*l->max_in);
+            curr = strlen(buff);
+            fwrite(buff, 1, curr, output_file);
+
             sprintf(buff, "quantized_switch=2\n");
             //printf("layer %d, max_in=%d\n",nu,*l->max_in);
             curr = strlen(buff);

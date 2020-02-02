@@ -890,6 +890,10 @@ layer parse_shortcut(list *options, size_params params, network net)
     layer s = make_shortcut_layer(params.batch, n, layers, sizes, params.w, params.h, params.c, layers_output, layers_delta,
         layers_output_gpu, layers_delta_gpu, weights_type, weights_normalizion, activation, params.train);
 
+    s.bitwidth = option_find_float_quiet(options, "bitwidth", 0);
+    s.quantized_switch = option_find_float_quiet(options, "quantized_switch", 0);
+    s.max_out[0] = option_find_float_quiet(options, "max_out", -16);
+
     free(layers_output_gpu);
     free(layers_delta_gpu);
 
