@@ -890,7 +890,7 @@ void rewrite_cfg(network net, char *filename)
 
             int shift_in = (int)ceil(log2(*l->max_value_in) ) + off;
             *l->max_in = l->bitwidth - shift_in;
-            *l->max_value_in = 0;
+            //*l->max_value_in = 0;
 
             int shift_out = (int)ceil(log2(*l->max_value_out) ) + off;
             *l->max_out = l->bitwidth - shift_out;
