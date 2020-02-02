@@ -970,7 +970,7 @@ int quantized_network(network net)
             {
                 l->quantized_switch = 2;
 
-                printf("\n%d %d\n", j, *l->max_in);
+                printf("\n%d %f\n", j, *l->max_value_in);
                 continue;
             }
         }
