@@ -1122,7 +1122,7 @@ void calculate_fixed_weights(network net)
         if (l->type == SHORTCUT)
         {
             l->bitwidth = 8;
-            l->quantized_switch += 1;
+            //l->quantized_switch += 1;
 
             l->max_in       =  calloc(1, sizeof(int));
             l->max_out      =  calloc(1, sizeof(int));
@@ -1135,7 +1135,7 @@ void calculate_fixed_weights(network net)
             //printf(" Merges Convolutional-%d and batch_norm \n", j);
 
             l->bitwidth = 8;
-            l->quantized_switch += 1;
+            //l->quantized_switch += 1;
 
             float second_max_bias = 0;
             float delta_max_bias = 0;

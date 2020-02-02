@@ -824,7 +824,7 @@ void rewrite_cfg(network net, char *filename)
     FILE *file = fopen(filename, "r");
     char name[1024];
     sprintf(name, "%s.cfg", filename);
-    printf("%s\n",name);
+    
     FILE *output_file = fopen(name, "wb");
     printf("yes\n");
     if(file == 0) file_error(filename);
@@ -874,7 +874,7 @@ void rewrite_cfg(network net, char *filename)
             fwrite(buff, 1, curr+1, output_file);
 
             layer *l = &net.layers[nu];
-            l->quantized_switch = 3;
+            //l->quantized_switch = 3;
             int off = 1;
 
             sprintf(buff, "quantized_switch=2\n");
@@ -925,7 +925,7 @@ void rewrite_cfg(network net, char *filename)
             fwrite(buff, 1, curr+1, output_file);
 
             layer *l = &net.layers[nu];
-            l->quantized_switch = 3;
+            //l->quantized_switch = 3;
 
             int off = 1;
             int shift_out = (int)ceil(log2(*l->max_value_out) ) + off;
@@ -952,6 +952,28 @@ void rewrite_cfg(network net, char *filename)
     }
     fclose(file);
     fclose(output_file);
+}
+
+int quantized_network(network net)
+{
+    int j;
+    for (j = 0; j < net.n; ++j) {
+        layer *l = &net.layers[j];
+        if (l->type == CONVOLUTIONAL || l->type == SHORTCUT) {
+            if(l->quantized_switch == 0)
+            {
+                l->quantized_switch = 1;
+                return 0;
+            }
+            else if(l->quantized_switch == 1)
+            {
+                l->quantized_switch = 2;
+                continue;
+            }
+        }
+    }
+    return 1;
+
 }
 
 float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, float thresh_calc_avg_iou, const float iou_thresh, const int map_points, int letter_box, network *existing_net)
@@ -1014,7 +1036,7 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
     int i = 0;
     int t;
 
-    m = 100;
+    m = 10000;
 
     const float thresh = .005;
     const float nms = .45;
@@ -1059,6 +1081,12 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
     }
     time_t start = time(0);
     for (i = nthreads; i < m + nthreads; i += nthreads) {
+        if(i % 100 == 0)
+        {
+            int finish = quantized_network(net);
+            if(finish) break;
+
+        }
         fprintf(stderr, "\r%d", i);
         for (t = 0; t < nthreads && (i + t - nthreads) < m; ++t) {
             pthread_join(thr[t], 0);
@@ -1072,7 +1100,7 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
             thr[t] = load_data_in_thread(args);
         }
         for (t = 0; t < nthreads && i + t - nthreads < m; ++t) {
-            const int image_index = i + t - nthreads;
+            const int image_index = (i + t - nthreads) % 100;
             char *path = paths[image_index];
             char *id = basecfg(path);
             float *X = val_resized[t].data;
@@ -1207,14 +1235,12 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
             free_image(val[t]);
             free_image(val_resized[t]);
         }
-        if(i%100 == 0)
-        {
-            rewrite_cfg(net, cfgfile);
-            char buff[1024];
-            sprintf(buff, "final.weights");
-            save_weights(net, buff);
-        }
     }
+
+    rewrite_cfg(net, cfgfile);
+    char buff[1024];
+    sprintf(buff, "final.weights");
+    save_weights(net, buff);
 
 
     //for (t = 0; t < nthreads; ++t) {
