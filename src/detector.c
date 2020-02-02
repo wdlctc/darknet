@@ -959,7 +959,29 @@ int quantized_network(network net)
     int j;
     for (j = 0; j < net.n; ++j) {
         layer *l = &net.layers[j];
-        if (l->type == CONVOLUTIONAL || l->type == SHORTCUT) {
+        if (l->type == CONVOLUTIONAL) {
+            if(l->quantized_switch == 0)
+            {
+                l->quantized_switch = 1;
+                printf("\n%d\n", j);
+                return 0;
+            }
+            else if(l->quantized_switch == 1)
+            {
+                l->quantized_switch = 6;
+                int shift_in = (int)round(log2(*l->max_value_in) ) + 1;
+                *l->max_in = l->bitwidth - shift_in;
+
+                printf("\n%d %f %d\n", j, *l->max_value_in,*l->max_in);
+            }
+            else if(l->quantized_switch == 6)
+            {
+                l->quantized_switch = 2;
+                int shift_out = (int)round(log2(*l->max_value_out) ) + 1;
+                *l->max_out = l->bitwidth - shift_out;
+            }
+        }
+        else if (l->type == SHORTCUT) {
             if(l->quantized_switch == 0)
             {
                 l->quantized_switch = 1;
@@ -969,11 +991,10 @@ int quantized_network(network net)
             else if(l->quantized_switch == 1)
             {
                 l->quantized_switch = 2;
-                int shift_in = (int)round(log2(*l->max_value_in) ) + 1;
-                *l->max_in = l->bitwidth - shift_in;
+                int shift_out = (int)round(log2(*l->max_value_out) ) + 1;
+                *l->max_out = l->bitwidth - shift_out;
 
-                printf("\n%d %f %d\n", j, *l->max_value_in,*l->max_in);
-                //continue;
+                printf("\n%d %f %d\n", j, *l->max_value_out,*l->max_out);
             }
         }
     }
