@@ -963,6 +963,7 @@ int quantized_network(network net)
             if(l->quantized_switch == 0)
             {
                 l->quantized_switch = 1;
+                printf("\n%d\n", j);
                 return 0;
             }
             else if(l->quantized_switch == 1)
@@ -1085,7 +1086,6 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
         {
             int finish = quantized_network(net);
             if(finish) break;
-
         }
         fprintf(stderr, "\r%d", i);
         for (t = 0; t < nthreads && (i + t - nthreads) < m; ++t) {
