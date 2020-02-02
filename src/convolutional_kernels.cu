@@ -419,7 +419,7 @@ void forward_convolutional_layer_gpu(convolutional_layer l, network_state state)
             //cudaMemcpy(l.fix_input, l.fix_input_gpu, 2*sizeof(float), cudaMemcpyDeviceToHost);
             cudaMemcpy(l.fix_input, l.fix_input_gpu, 2*sizeof(float), cudaMemcpyDeviceToHost);
             //printf("%f %f\n",l.fix_input[0], l.fix_input[1]);
-            delta_max = l.fix_input[1];
+            delta_max = l.fix_input[0];
 
             if(delta_max > *l.max_value_in)
                 *l.max_value_in = delta_max;
@@ -669,7 +669,7 @@ void forward_convolutional_layer_gpu(convolutional_layer l, network_state state)
             //cudaMemcpy(l.fix_input, l.fix_input_gpu, 2*sizeof(float), cudaMemcpyDeviceToHost);
             cudaMemcpy(l.fix_output, l.fix_output_gpu, 2*sizeof(float), cudaMemcpyDeviceToHost);
             //printf("%f %f\n",l.fix_input[0], l.fix_input[1]);
-            delta_max = l.fix_output[1];
+            delta_max = l.fix_output[0];
 
             if(delta_max > *l.max_value_out)
                 *l.max_value_out = delta_max;
