@@ -964,13 +964,15 @@ int quantized_network(network net)
             {
                 l->quantized_switch = 1;
                 printf("\n%d\n", j);
-                //return 0;
+                return 0;
             }
             else if(l->quantized_switch == 1)
             {
                 l->quantized_switch = 2;
+                int shift_in = (int)ceil(log2(*l->max_value_in) ) + 1;
+                *l->max_in = l->bitwidth - shift_in;
 
-                printf("\n%d %f\n", j, *l->max_value_in);
+                //printf("\n%d %f\n", j, *l->max_value_in);
                 //continue;
             }
         }
@@ -1039,7 +1041,7 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
     int i = 0;
     int t;
 
-    m = 5000;
+    m = 10000;
 
     const float thresh = .005;
     const float nms = .45;
@@ -1087,7 +1089,7 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
         if(i % 20 == nthreads)
         {
             int finish = quantized_network(net);
-            //if(finish) break;
+            if(finish) break;
         }
         fprintf(stderr, "\r%d", i);
         for (t = 0; t < nthreads && (i + t - nthreads) < m; ++t) {
@@ -1096,14 +1098,14 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
             val_resized[t] = buf_resized[t];
         }
         for (t = 0; t < nthreads && (i + t) < m; ++t) {
-            const int image_index = (i + t);
+            const int image_index = (i + t) % 20;
             args.path = paths[image_index];
             args.im = &buf[t];
             args.resized = &buf_resized[t];
             thr[t] = load_data_in_thread(args);
         }
         for (t = 0; t < nthreads && i + t - nthreads < m; ++t) {
-            const int image_index = (i + t - nthreads);
+            const int image_index = (i + t - nthreads) % 20;
             char *path = paths[image_index];
             char *id = basecfg(path);
             float *X = val_resized[t].data;
