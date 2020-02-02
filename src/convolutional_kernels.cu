@@ -434,7 +434,7 @@ void forward_convolutional_layer_gpu(convolutional_layer l, network_state state)
 
             if(delta_max > *l.max_value_in)
                  *l.max_value_in = delta_max;
-            printf("%f %f\n",*l.max_value_in,delta_max);
+            printf("\n%f %f\n",*l.max_value_in,delta_max);
         }
 
         if(l.quantized_switch & 2)
