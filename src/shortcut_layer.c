@@ -175,16 +175,16 @@ void forward_shortcut_layer(const layer l, network_state state)
 
     if (l.bitwidth)
     {
-        float delta_max = 0;
-        float second_max = 0;
-        for(int i = 0 ; i < l.outputs*l.batch; i++)
-            if(fabs(l.output[i]) > delta_max)
-            {
-                second_max = delta_max;
-                delta_max = fabs(l.output[i]);
-            }
-        if(second_max > *l.max_value_out)
-            *l.max_value_out = second_max;
+        // float delta_max = 0;
+        // float second_max = 0;
+        // for(int i = 0 ; i < l.outputs*l.batch; i++)
+        //     if(fabs(l.output[i]) > delta_max)
+        //     {
+        //         second_max = delta_max;
+        //         delta_max = fabs(l.output[i]);
+        //     }
+        // if(second_max > *l.max_value_out)
+        //     *l.max_value_out = second_max;
     }
 }
 
@@ -242,15 +242,15 @@ void forward_shortcut_layer_gpu(const layer l, network_state state)
 
     if (l.bitwidth)
     {
-        bitonic_sort_gpu(l.outputs*l.batch, l.output_gpu, l.fix_output_gpu);
-        float delta_max;
-        //cudaMemcpy(l.fix_input, l.fix_input_gpu, 2*sizeof(float), cudaMemcpyDeviceToHost);
-        cudaMemcpy(l.fix_output, l.fix_output_gpu, 2*sizeof(float), cudaMemcpyDeviceToHost);
-        //printf("%f %f\n",l.fix_input[0], l.fix_input[1]);
-        delta_max = l.fix_output[0];
+        // bitonic_sort_gpu(l.outputs*l.batch, l.output_gpu, l.fix_output_gpu);
+        // float delta_max;
+        // //cudaMemcpy(l.fix_input, l.fix_input_gpu, 2*sizeof(float), cudaMemcpyDeviceToHost);
+        // cudaMemcpy(l.fix_output, l.fix_output_gpu, 2*sizeof(float), cudaMemcpyDeviceToHost);
+        // //printf("%f %f\n",l.fix_input[0], l.fix_input[1]);
+        // delta_max = l.fix_output[0];
 
-        if(delta_max > *l.max_value_out)
-            *l.max_value_out = delta_max;
+        // if(delta_max > *l.max_value_out)
+        //     *l.max_value_out = delta_max;
     }
 
 }
