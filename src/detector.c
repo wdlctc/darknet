@@ -897,7 +897,7 @@ void rewrite_cfg(network net, char *filename)
             *l->max_value_out = 0;
 
             sprintf(buff, "max_in=%d\n", *l->max_in);
-            printf("layer %d, max_in=%d\n",nu,*l->max_in);
+            printf("layer %d, max_in=%d, max_value_in=%f\n",nu,*l->max_in,*l->max_value_in);
             curr = strlen(buff);
             fwrite(buff, 1, curr, output_file);
 
