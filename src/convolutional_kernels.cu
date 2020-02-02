@@ -428,8 +428,11 @@ void forward_convolutional_layer_gpu(convolutional_layer l, network_state state)
             for(int i = 0; i < l.c*l.h*l.w*l.batch; i++)
             {
                 if(delta_max < abs(l.fix_input[i]))
-                    printf("no %d %d %f %f %f\n", i, l.c*l.h*l.w*l.batch, delta_max, abs(l.fix_input[i]), l.fix_input[i]);
+                    delta_max = abs(l.fix_input[i]);
             }
+
+            if(delta_max > *l.max_value_in)
+                 *l.max_value_in = delta_max;
         }
 
         if(l.quantized_switch & 2)
