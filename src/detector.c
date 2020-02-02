@@ -1233,10 +1233,10 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
             //sprintf(buff, "%s\n", path);
             //if(errors_in_this_image > 0) fwrite(buff, sizeof(char), strlen(buff), reinforcement_fd);
 
-            free_detections(dets, nboxes);
-            free(id);
-            free_image(val[t]);
-            free_image(val_resized[t]);
+            // free_detections(dets, nboxes);
+            // free(id);
+            // free_image(val[t]);
+            // free_image(val_resized[t]);
         }
     }
 
