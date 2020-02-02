@@ -964,14 +964,14 @@ int quantized_network(network net)
             {
                 l->quantized_switch = 1;
                 printf("\n%d\n", j);
-                return 0;
+                //return 0;
             }
             else if(l->quantized_switch == 1)
             {
                 l->quantized_switch = 2;
 
-                printf("\n%d %f\n", j, *l->max_value_in);
-                continue;
+                //printf("\n%d %f\n", j, *l->max_value_in);
+                //continue;
             }
         }
     }
@@ -1039,7 +1039,7 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
     int i = 0;
     int t;
 
-    m = 10000;
+    m = 100;
 
     const float thresh = .005;
     const float nms = .45;
