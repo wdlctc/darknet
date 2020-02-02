@@ -1096,14 +1096,14 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
             val_resized[t] = buf_resized[t];
         }
         for (t = 0; t < nthreads && (i + t) < m; ++t) {
-            const int image_index = (i + t) % 20;
+            const int image_index = (i + t);
             args.path = paths[image_index];
             args.im = &buf[t];
             args.resized = &buf_resized[t];
             thr[t] = load_data_in_thread(args);
         }
         for (t = 0; t < nthreads && i + t - nthreads < m; ++t) {
-            const int image_index = (i + t - nthreads) % 20;
+            const int image_index = (i + t - nthreads);
             char *path = paths[image_index];
             char *id = basecfg(path);
             float *X = val_resized[t].data;
