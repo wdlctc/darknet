@@ -888,11 +888,11 @@ void rewrite_cfg(network net, char *filename)
             fwrite(buff, 1, curr, output_file);
 
 
-            int shift_in = (int)ceil(log2(*l->max_value_in) ) + off;
+            int shift_in = (int)round(log2(*l->max_value_in) ) + off;
             *l->max_in = l->bitwidth - shift_in;
             *l->max_value_in = 0;
 
-            int shift_out = (int)ceil(log2(*l->max_value_out) ) + off;
+            int shift_out = (int)round(log2(*l->max_value_out) ) + off;
             *l->max_out = l->bitwidth - shift_out;
             *l->max_value_out = 0;
 
@@ -928,7 +928,7 @@ void rewrite_cfg(network net, char *filename)
             //l->quantized_switch = 3;
 
             int off = 1;
-            int shift_out = (int)ceil(log2(*l->max_value_out) ) + off;
+            int shift_out = (int)round(log2(*l->max_value_out) ) + off;
             *l->max_out = l->bitwidth - shift_out;
             *l->max_value_out = 0;
 
@@ -969,7 +969,7 @@ int quantized_network(network net)
             else if(l->quantized_switch == 1)
             {
                 l->quantized_switch = 2;
-                int shift_in = (int)ceil(log2(*l->max_value_in) ) + 1;
+                int shift_in = (int)round(log2(*l->max_value_in) ) + 1;
                 *l->max_in = l->bitwidth - shift_in;
 
                 printf("\n%d %f %d\n", j, *l->max_value_in,*l->max_in);
@@ -1086,7 +1086,7 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
     }
     time_t start = time(0);
     for (i = nthreads; i < m + nthreads; i += nthreads) {
-        if(i % 1000 == nthreads)
+        if(i % 100 == nthreads)
         {
             int finish = quantized_network(net);
             if(finish) break;
@@ -1098,14 +1098,14 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
             val_resized[t] = buf_resized[t];
         }
         for (t = 0; t < nthreads && (i + t) < m; ++t) {
-            const int image_index = (i + t) % 1000;
+            const int image_index = (i + t) % 100;
             args.path = paths[image_index];
             args.im = &buf[t];
             args.resized = &buf_resized[t];
             thr[t] = load_data_in_thread(args);
         }
         for (t = 0; t < nthreads && i + t - nthreads < m; ++t) {
-            const int image_index = (i + t - nthreads) % 1000;
+            const int image_index = (i + t - nthreads) % 100;
             char *path = paths[image_index];
             char *id = basecfg(path);
             float *X = val_resized[t].data;
