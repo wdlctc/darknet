@@ -695,6 +695,11 @@ void forward_convolutional_layer_gpu(convolutional_layer l, network_state state)
             if(second_max > *l.max_value_out)
                  *l.max_value_out = second_max;
         }
+
+        if(l.quantized_switch & 2)
+        {
+            Trim2FixedPoint_gpu(l.outputs*l.batch, 0, l.output_gpu, l.output_gpu, 1, l.bitwidth, 0, *l.max_out);
+        }
     }
 }
 
