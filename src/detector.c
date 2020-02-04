@@ -962,6 +962,7 @@ void rewrite_cfg(network net, char *filename)
 int quantized_network(network net)
 {
     int j;
+    int open = 1;
     for (j = 0; j < net.n; ++j) {
         layer *l = &net.layers[j];
         if (l->type == CONVOLUTIONAL) {
@@ -976,12 +977,12 @@ int quantized_network(network net)
                 l->quantized_switch = 6;
                 int shift_in = (int)round(log2(*l->max_value_in) ) + 1;
                 *l->max_in = l->bitwidth - shift_in;
-
+                open = 0;
                 printf("\n%d %f %d\n", j, *l->max_value_in,*l->max_in);
             }
             else if(l->quantized_switch == 6)
             {
-                l->quantized_switch = 2;
+                l->quantized_switch = 10;
                 int shift_out = (int)round(log2(*l->max_value_out) ) + 1;
                 *l->max_out = l->bitwidth - shift_out;
             }
@@ -1003,7 +1004,7 @@ int quantized_network(network net)
             }
         }
     }
-    return 1;
+    return open;
 
 }
 
