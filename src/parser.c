@@ -1011,6 +1011,12 @@ route_layer parse_route(list *options, size_params params)
 
     route_layer layer = make_route_layer(batch, n, layers, sizes, groups, group_id);
 
+    layer.max_in       =  calloc(1, sizeof(int));
+    layer.max_out      =  calloc(1, sizeof(int));
+
+    layer.max_value_in     = calloc(1, sizeof(float));
+    layer.max_value_out    = calloc(1, sizeof(float));
+
     layer.bitwidth = option_find_float_quiet(options, "bitwidth", 0);
     layer.quantized_switch = option_find_float_quiet(options, "quantized_switch", 0);
     layer.max_out[0] = option_find_float_quiet(options, "max_out", -16);
