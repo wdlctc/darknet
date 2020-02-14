@@ -1008,6 +1008,7 @@ int quantized_network(network net)
                 *l->max_in = l->bitwidth - shift_in;
                 open = 0;
                 printf("\n%d %f %d\n", j, *l->max_value_in,*l->max_in);
+                return 0;
             }
             else if(l->quantized_switch == 6)
             {
