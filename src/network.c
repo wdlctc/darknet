@@ -1126,6 +1126,13 @@ void calculate_fixed_weights(network net)
 
         }
 
+        if (l->type == ROUTE)
+        {
+            l->bitwidth = 8;
+            //l->quantized_switch += 1;
+
+        }
+
         if (l->type == CONVOLUTIONAL) {
             //printf(" Merges Convolutional-%d and batch_norm \n", j);
 

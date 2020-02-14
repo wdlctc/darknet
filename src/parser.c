@@ -1011,6 +1011,10 @@ route_layer parse_route(list *options, size_params params)
 
     route_layer layer = make_route_layer(batch, n, layers, sizes, groups, group_id);
 
+    layer.bitwidth = option_find_float_quiet(options, "bitwidth", 0);
+    layer.quantized_switch = option_find_float_quiet(options, "quantized_switch", 0);
+    layer.max_out[0] = option_find_float_quiet(options, "max_out", -16);
+
     convolutional_layer first = params.net.layers[layers[0]];
     layer.out_w = first.out_w;
     layer.out_h = first.out_h;

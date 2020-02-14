@@ -27,6 +27,7 @@ route_layer make_route_layer(int batch, int n, int *input_layers, int *input_siz
     //fprintf(stderr, " inputs = %d \t outputs = %d, groups = %d, group_id = %d \n", l.inputs, l.outputs, l.groups, l.group_id);
     l.delta = (float*)xcalloc(outputs * batch, sizeof(float));
     l.output = (float*)xcalloc(outputs * batch, sizeof(float));
+    l.fix_output = (float*)xcalloc(l.outputs * batch, sizeof(float));
 
     l.forward = forward_route_layer;
     l.backward = backward_route_layer;
@@ -130,6 +131,33 @@ void forward_route_layer_gpu(const route_layer l, network_state state)
         }
         //offset += input_size;
         offset += part_input_size;
+    }
+
+
+    if (l.bitwidth)
+    {   
+        if(l.quantized_switch & 1)
+        {
+            float delta_max = 0;
+            float second_max = 0;
+
+            cudaMemcpy(l.fix_output, l.output_gpu, l.outputs*l.batch*sizeof(float), cudaMemcpyDeviceToHost);
+            for(int i = 0; i < l.outputs*l.batch; i++)
+            {
+                if(delta_max < abs(l.fix_output[i]))
+                {
+                    second_max = delta_max;
+                    delta_max = abs(l.fix_output[i]);
+                }
+            }
+
+            if(second_max > *l.max_value_out)
+                 *l.max_value_out = second_max;
+        }
+        if(l.quantized_switch & 2)
+        {
+            Trim2FixedPoint_gpu(l.outputs*l.batch, 0, l.output_gpu, l.output_gpu, 1, l.bitwidth, 0, *l.max_out);
+        }
     }
 }
 

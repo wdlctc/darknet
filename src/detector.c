@@ -947,6 +947,35 @@ void rewrite_cfg(network net, char *filename)
             curr = strlen(buff);
             fwrite(buff, 1, curr, output_file);
         }
+        else if (strcmp(line, "[route]")==0) 
+        {
+            sprintf(buff, "%s\n", line);
+            size_t curr = strlen(line);
+            fwrite(buff, 1, curr+1, output_file);
+
+            layer *l = &net.layers[nu];
+            //l->quantized_switch = 3;
+
+            int off = 1;
+            int shift_out = (int)round(log2(*l->max_value_out) ) + off;
+            *l->max_out = l->bitwidth - shift_out;
+            *l->max_value_out = 0;
+
+            sprintf(buff, "bitwidth=8\n");
+            //printf("layer %d, max_in=%d\n",nu,*l->max_in);
+            curr = strlen(buff);
+            fwrite(buff, 1, curr, output_file);
+
+            sprintf(buff, "quantized_switch=2\n");
+            //printf("layer %d, max_in=%d\n",nu,*l->max_in);
+            curr = strlen(buff);
+            fwrite(buff, 1, curr, output_file);
+
+            sprintf(buff, "max_out=%d\n", *l->max_out);
+            //printf("layer %d, max_in=%d\n",nu,*l->max_in);
+            curr = strlen(buff);
+            fwrite(buff, 1, curr, output_file);
+        }
         else
         {
             sprintf(buff, "%s\n", line);
@@ -988,6 +1017,22 @@ int quantized_network(network net)
             }
         }
         else if (l->type == SHORTCUT) {
+            if(l->quantized_switch == 0)
+            {
+                l->quantized_switch = 1;
+                printf("\n%d\n", j);
+                return 0;
+            }
+            else if(l->quantized_switch == 1)
+            {
+                l->quantized_switch = 2;
+                int shift_out = (int)round(log2(*l->max_value_out) ) + 1;
+                *l->max_out = l->bitwidth - shift_out;
+
+                printf("\n%d %f %d\n", j, *l->max_value_out,*l->max_out);
+            }
+        }
+        else if (l->type == ROUTE) {
             if(l->quantized_switch == 0)
             {
                 l->quantized_switch = 1;
