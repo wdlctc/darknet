@@ -998,7 +998,7 @@ int quantized_network(network net)
             if(l->quantized_switch == 0)
             {
                 l->quantized_switch = 1;
-                printf("\n%d\n", j);
+                printf("CONVOLUTIONAL \n%d\n", j);
                 return 0;
             }
             else if(l->quantized_switch == 1)
@@ -1007,7 +1007,7 @@ int quantized_network(network net)
                 int shift_in = (int)round(log2(*l->max_value_in) ) + 1;
                 *l->max_in = l->bitwidth - shift_in;
                 open = 0;
-                printf("\n%d %f %d\n", j, *l->max_value_in,*l->max_in);
+                printf("CONVOLUTIONAL \n%d %f %d\n", j, *l->max_value_in,*l->max_in);
                 return 0;
             }
             else if(l->quantized_switch == 6)
@@ -1021,7 +1021,7 @@ int quantized_network(network net)
             if(l->quantized_switch == 0)
             {
                 l->quantized_switch = 1;
-                printf("\n%d\n", j);
+                printf("SHORTCUT \n%d\n", j);
                 return 0;
             }
             else if(l->quantized_switch == 1)
@@ -1030,14 +1030,14 @@ int quantized_network(network net)
                 int shift_out = (int)round(log2(*l->max_value_out) ) + 1;
                 *l->max_out = l->bitwidth - shift_out;
 
-                printf("\n%d %f %d\n", j, *l->max_value_out,*l->max_out);
+                printf("SHORTCUT \n%d %f %d\n", j, *l->max_value_out,*l->max_out);
             }
         }
         else if (l->type == ROUTE) {
             if(l->quantized_switch == 0)
             {
                 l->quantized_switch = 1;
-                printf("\n%d\n", j);
+                printf("route \n%d\n", j);
                 return 0;
             }
             else if(l->quantized_switch == 1)
@@ -1046,7 +1046,7 @@ int quantized_network(network net)
                 int shift_out = (int)round(log2(*l->max_value_out) ) + 1;
                 *l->max_out = l->bitwidth - shift_out;
 
-                printf("\n%d %f %d\n", j, *l->max_value_out,*l->max_out);
+                printf("route \n%d %f %d\n", j, *l->max_value_out,*l->max_out);
             }
         }
     }
