@@ -1114,7 +1114,7 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
     int i = 0;
     int t;
 
-    m = 200;
+    m = 5000;
     //m = 50000000;
 
     const float thresh = .005;
@@ -1258,8 +1258,6 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
     float *avg_iou_per_class = (float*)xcalloc(classes, sizeof(float));
     int *tp_for_thresh_per_class = (int*)xcalloc(classes, sizeof(int));
     int *fp_for_thresh_per_class = (int*)xcalloc(classes, sizeof(int));
-
-    printf("--------%d %d \n",nthreads + itr,itr + m + nthreads);
 
     for (i = nthreads + itr; i < itr + m + nthreads; i += nthreads) {
         fprintf(stderr, "\r%d", i);
