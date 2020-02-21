@@ -1180,9 +1180,12 @@ void calculate_fixed_weights(network net)
                 l->weights[i] = round (l->weights[i]) ;
                 l->weights[i] /= scale_weight;
             }
+
+#ifdef GPU
             if (gpu_index >= 0) {
                 push_convolutional_layer(*l);
             }
+#endif
         }
     }
 }
