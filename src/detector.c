@@ -888,13 +888,13 @@ void rewrite_cfg(network net, char *filename)
             fwrite(buff, 1, curr, output_file);
 
 
-            int shift_in = (int)round(log2(*l->max_value_in) ) + off;
-            *l->max_in = l->bitwidth - shift_in;
-            *l->max_value_in = 0;
+            // int shift_in = (int)round(log2(*l->max_value_in) ) + off;
+            // *l->max_in = l->bitwidth - shift_in;
+            // *l->max_value_in = 0;
 
-            int shift_out = (int)round(log2(*l->max_value_out) ) + off;
-            *l->max_out = l->bitwidth - shift_out;
-            *l->max_value_out = 0;
+            // int shift_out = (int)round(log2(*l->max_value_out) ) + off;
+            // *l->max_out = l->bitwidth - shift_out;
+            // *l->max_value_out = 0;
 
             sprintf(buff, "max_in=%d\n", *l->max_in);
             //printf("layer %d, max_in=%d, max_value_in=%f\n",nu,*l->max_in,*l->max_value_in);
@@ -927,10 +927,10 @@ void rewrite_cfg(network net, char *filename)
             layer *l = &net.layers[nu];
             //l->quantized_switch = 3;
 
-            int off = 1;
-            int shift_out = (int)round(log2(*l->max_value_out) ) + off;
-            *l->max_out = l->bitwidth - shift_out;
-            *l->max_value_out = 0;
+            // int off = 1;
+            // int shift_out = (int)round(log2(*l->max_value_out) ) + off;
+            // *l->max_out = l->bitwidth - shift_out;
+            // *l->max_value_out = 0;
 
             sprintf(buff, "bitwidth=8\n");
             //printf("layer %d, max_in=%d\n",nu,*l->max_in);
@@ -956,10 +956,10 @@ void rewrite_cfg(network net, char *filename)
             layer *l = &net.layers[nu];
             //l->quantized_switch = 3;
 
-            int off = 1;
-            int shift_out = (int)round(log2(*l->max_value_out) ) + off;
-            *l->max_out = l->bitwidth - shift_out;
-            *l->max_value_out = 0;
+            // int off = 1;
+            // int shift_out = (int)round(log2(*l->max_value_out) ) + off;
+            // *l->max_out = l->bitwidth - shift_out;
+            // *l->max_value_out = 0;
 
             sprintf(buff, "bitwidth=8\n");
             //printf("layer %d, max_in=%d\n",nu,*l->max_in);
@@ -1114,7 +1114,8 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
     int i = 0;
     int t;
 
-    m = 50000000;
+    m = 200;
+    //m = 50000000;
 
     const float thresh = .005;
     const float nms = .45;
@@ -1152,7 +1153,7 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
     time_t start = time(0);
 
     int itr;
-    for (itr = 0; itr < m + nthreads; itr += 200) {
+    for (itr = 0;; itr += m) {
 
     
     layer *current_layer;
@@ -1258,7 +1259,7 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
     int *tp_for_thresh_per_class = (int*)xcalloc(classes, sizeof(int));
     int *fp_for_thresh_per_class = (int*)xcalloc(classes, sizeof(int));
 
-    for (i = nthreads + itr; i < itr + 200 + nthreads; i += nthreads) {
+    for (i = nthreads + itr; i < itr + m + nthreads; i += nthreads) {
         fprintf(stderr, "\r%d", i);
         for (t = 0; t < nthreads && (i + t - nthreads) < m; ++t) {
             pthread_join(thr[t], 0);
@@ -1266,14 +1267,14 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
             val_resized[t] = buf_resized[t];
         }
         for (t = 0; t < nthreads && (i + t) < m; ++t) {
-            const int image_index = (i + t) % 200;
+            const int image_index = (i + t) % m;
             args.path = paths[image_index];
             args.im = &buf[t];
             args.resized = &buf_resized[t];
             thr[t] = load_data_in_thread(args);
         }
         for (t = 0; t < nthreads && i + t - nthreads < m; ++t) {
-            const int image_index = (i + t - nthreads) % 200;
+            const int image_index = (i + t - nthreads) % m;
             char *path = paths[image_index];
             char *id = basecfg(path);
             float *X = val_resized[t].data;
@@ -1637,7 +1638,7 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
 
 
     if (sub_itr != quantized_time - 1) {
-        itr += 200;
+        itr += m;
     }
 
     }
