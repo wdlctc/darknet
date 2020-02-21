@@ -1163,6 +1163,7 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
     for(j = 0; j < net.n; ++j) {
         layer *l = &net.layers[j];
         if(l->type == CONVOLUTIONAL && l->quantized_switch == 0) {
+            printf("CONVOLUTIONAL \n%d\n", j);
             layer_index = j;
             current_layer = l;
             l->quantized_switch = 1;
@@ -1171,6 +1172,7 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
             break;
         }
         else if(l->type == SHORTCUT && l->quantized_switch == 0) {
+            printf("SHORTCUT \n%d\n", j);
             layer_index = j;
             current_layer = l;
             l->quantized_switch = 1;
@@ -1179,6 +1181,7 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
             break;
         }
         else if(l->type == ROUTE && l->quantized_switch == 0) {
+            printf("ROUTE \n%d\n", j);
             layer_index = j;
             current_layer = l;
             l->quantized_switch = 1;
