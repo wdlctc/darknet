@@ -1114,7 +1114,7 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
     int i = 0;
     int t;
 
-    m = 500000;
+    m = 50000000;
 
     const float thresh = .005;
     const float nms = .45;
@@ -1197,6 +1197,14 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
     int shift_out;
 
     for(int sub_itr = 0; sub_itr < quantized_time; sub_itr++) {
+        if(sub_itr == 0 && layer_index != 0 && current_layer->type == CONVOLUTIONAL) {
+            layer *pre = &net.layers[layer_index-1];
+            if(pre->type == CONVOLUTIONAL || pre->type == SHORTCUT || pre->type == ROUTE) {
+                sub_itr = 2;
+                *current_layer->max_in = pre->max_out;
+                continue;
+            }
+        }
 
         if(current_layer->type == CONVOLUTIONAL && sub_itr == 1){
             current_layer->quantized_switch = 2;
