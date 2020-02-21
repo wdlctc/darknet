@@ -94,6 +94,22 @@ void forward_route_layer(const route_layer l, network_state state)
         //offset += input_size;
         offset += part_input_size;
     }
+
+    if (l.bitwidth)
+    {   
+        if(l.quantized_switch & 2)
+        {
+            float max_data = (powf(2, l.bitwidth - 1) - 1);
+            float min_data = (-powf(2, l.bitwidth - 1) + 1);
+            float scale = powf(2, *l.max_out);
+            for(int i = 0 ; i < l.outputs*l.batch; i++){
+                l.output[i] *=scale;
+                l.output[i] = fmax(fmin(l.output[i],max_data), min_data);
+                l.output[i] = round (l.output[i]) ;
+                l.output[i] = l.output[i] / scale;    
+            }
+        }
+    }
 }
 
 void backward_route_layer(const route_layer l, network_state state)

@@ -174,17 +174,19 @@ void forward_shortcut_layer(const layer l, network_state state)
     else activate_array_cpu_custom(l.output, l.outputs*l.batch, l.activation);
 
     if (l.bitwidth)
-    {
-        // float delta_max = 0;
-        // float second_max = 0;
-        // for(int i = 0 ; i < l.outputs*l.batch; i++)
-        //     if(fabs(l.output[i]) > delta_max)
-        //     {
-        //         second_max = delta_max;
-        //         delta_max = fabs(l.output[i]);
-        //     }
-        // if(second_max > *l.max_value_out)
-        //     *l.max_value_out = second_max;
+    {   
+        if(l.quantized_switch & 2)
+        {
+            float max_data = (powf(2, l.bitwidth - 1) - 1);
+            float min_data = (-powf(2, l.bitwidth - 1) + 1);
+            float scale = powf(2, *l.max_out);
+            for(int i = 0 ; i < l.outputs*l.batch; i++){
+                l.output[i] *=scale;
+                l.output[i] = fmax(fmin(l.output[i],max_data), min_data);
+                l.output[i] = round (l.output[i]) ;
+                l.output[i] = l.output[i] / scale;    
+            }
+        }
     }
 }
 
