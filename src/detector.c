@@ -1506,7 +1506,12 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
     if (reinforcement_fd != NULL) fclose(reinforcement_fd);
 
     }
-    
+
+    rewrite_cfg(net, cfgfile);
+    char buff[1024];
+    sprintf(buff, "final.weights");
+    save_weights(net, buff);
+
     // free memory
     free_ptrs((void**)names, net.layers[net.n - 1].classes);
     free_list_contents_kvp(options);
@@ -1521,12 +1526,6 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
     else {
         free_network(net);
     }
-
-
-    rewrite_cfg(net, cfgfile);
-    char buff[1024];
-    sprintf(buff, "final.weights");
-    save_weights(net, buff);
 
     if (val) free(val);
     if (val_resized) free(val_resized);
