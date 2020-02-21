@@ -1123,8 +1123,6 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
     int nthreads = 4;
     if (m < 4) nthreads = m;
 
-    int itr;
-    for (itr = 0; itr < m + nthreads; itr += 200) {
 
     image* val = (image*)xcalloc(nthreads, sizeof(image));
     image* val_resized = (image*)xcalloc(nthreads, sizeof(image));
@@ -1144,6 +1142,16 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
     int tp_for_thresh = 0;
     int fp_for_thresh = 0;
 
+    for (t = 0; t < nthreads; ++t) {
+        args.path = paths[i + t];
+        args.im = &buf[t];
+        args.resized = &buf_resized[t];
+        thr[t] = load_data_in_thread(args);
+    }
+    
+    int itr;
+    for (itr = 0; itr < m + nthreads; itr += 200) {
+
     box_prob* detections = (box_prob*)xcalloc(1, sizeof(box_prob));
     int detections_count = 0;
     int unique_truth_count = 0;
@@ -1155,12 +1163,6 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
     int *tp_for_thresh_per_class = (int*)xcalloc(classes, sizeof(int));
     int *fp_for_thresh_per_class = (int*)xcalloc(classes, sizeof(int));
 
-    for (t = 0; t < nthreads; ++t) {
-        args.path = paths[i + t];
-        args.im = &buf[t];
-        args.resized = &buf_resized[t];
-        thr[t] = load_data_in_thread(args);
-    }
     time_t start = time(0);
 
     int current_layer_type;
@@ -1168,7 +1170,7 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
     int finish = quantized_network(net);
     if(finish) break;
 
-    for (i = nthreads ; i < 200 + nthreads; i += nthreads) {
+    for (i = nthreads + itr; i < itr + 200 + nthreads; i += nthreads) {
         fprintf(stderr, "\r%d", i);
         for (t = 0; t < nthreads && (i + t - nthreads) < m; ++t) {
             pthread_join(thr[t], 0);
@@ -1517,12 +1519,6 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
     else {
         free_network(net);
     }
-    if (val) free(val);
-    if (val_resized) free(val_resized);
-    if (thr) free(thr);
-    if (buf) free(buf);
-    if (buf_resized) free(buf_resized);
-
     }
 
 
@@ -1530,6 +1526,13 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
     char buff[1024];
     sprintf(buff, "final.weights");
     save_weights(net, buff);
+
+    if (val) free(val);
+    if (val_resized) free(val_resized);
+    if (thr) free(thr);
+    if (buf) free(buf);
+    if (buf_resized) free(buf_resized);
+
     
     return 0;
 }
