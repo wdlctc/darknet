@@ -1201,7 +1201,7 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
             layer *pre = &net.layers[layer_index-1];
             if(pre->type == CONVOLUTIONAL || pre->type == SHORTCUT || pre->type == ROUTE) {
                 sub_itr = 3;
-                *current_layer->max_in = pre->max_out;
+                *current_layer->max_in = *pre->max_out;
             }
         }
 
