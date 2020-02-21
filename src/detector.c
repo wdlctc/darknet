@@ -1259,6 +1259,8 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
     int *tp_for_thresh_per_class = (int*)xcalloc(classes, sizeof(int));
     int *fp_for_thresh_per_class = (int*)xcalloc(classes, sizeof(int));
 
+    printf("--------%d %d \n",nthreads + itr,itr + m + nthreads);
+
     for (i = nthreads + itr; i < itr + m + nthreads; i += nthreads) {
         fprintf(stderr, "\r%d", i);
         for (t = 0; t < nthreads && (i + t - nthreads) < m; ++t) {
