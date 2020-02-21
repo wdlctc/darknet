@@ -1580,11 +1580,19 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
         }
     }
 
-    if (j != quantized_time - 1) {
-        itr += 200;
-    }
+    const float cur_precision = (float)tp_for_thresh / ((float)tp_for_thresh + (float)fp_for_thresh);
+    const float cur_recall = (float)tp_for_thresh / ((float)tp_for_thresh + (float)(unique_truth_count - tp_for_thresh));
+    const float f1_score = 2.F * cur_precision * cur_recall / (cur_precision + cur_recall);
+    printf("\n for conf_thresh = %1.2f, precision = %1.2f, recall = %1.2f, F1-score = %1.2f \n",
+        thresh_calc_avg_iou, cur_precision, cur_recall, f1_score);
 
+    printf(" for conf_thresh = %0.2f, TP = %d, FP = %d, FN = %d, average IoU = %2.2f %% \n",
+        thresh_calc_avg_iou, tp_for_thresh, fp_for_thresh, unique_truth_count - tp_for_thresh, avg_iou * 100);
 
+    mean_average_precision = mean_average_precision / classes;
+    printf("\n IoU threshold = %2.0f %%, ", iou_thresh * 100);
+    if (map_points) printf("used %d Recall-points \n", map_points);
+    else printf("used Area-Under-Curve for each unique Recall \n");
     printf(" mean average precision (mAP@%0.2f) = %f, or %2.2f %% \n", iou_thresh, mean_average_precision, mean_average_precision * 100);
 
 
@@ -1609,6 +1617,11 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
     printf(" `-points 11` for PascalVOC 2007 (uncomment `difficult` in voc.data) \n");
     printf(" `-points 0` (AUC) for ImageNet, PascalVOC 2010-2012, your custom dataset\n");
     if (reinforcement_fd != NULL) fclose(reinforcement_fd);
+
+
+    if (j != quantized_time - 1) {
+        itr += 200;
+    }
 
     }
 
