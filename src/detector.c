@@ -1159,24 +1159,29 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
     int layer_type;
     int layer_index;
     int quantized_time;
+    int open = 1;
     for(j = 0; j < net.n; ++j) {
         layer *l = &net.layers[j];
         if(l->type == CONVOLUTIONAL && l->quantized_switch == 0) {
             current_layer = l;
             l->quantized_switch = 1;
             quantized_time = 6;
+            open = 0;
         }
         else if(l->type == SHORTCUT && l->quantized_switch == 0) {
             current_layer = l;
             l->quantized_switch = 1;
             quantized_time = 3;
+            open = 0;
         }
         else if(l->type == ROUTE && l->quantized_switch == 0) {
             current_layer = l;
             l->quantized_switch = 1;
             quantized_time = 3;
+            open = 0;
         }
     }
+    if(open == 1) break;
 
     double max_average_precision = 0.0;
     int shift_in;
@@ -1603,7 +1608,9 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
     if (reinforcement_fd != NULL) fclose(reinforcement_fd);
 
     }
-    
+
+    if(open == 1) break;
+
     }
 
     rewrite_cfg(net, cfgfile);
