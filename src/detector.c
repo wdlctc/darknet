@@ -1319,12 +1319,6 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
         }
     }
 
-    rewrite_cfg(net, cfgfile);
-    char buff[1024];
-    sprintf(buff, "final.weights");
-    save_weights(net, buff);
-
-
     //for (t = 0; t < nthreads; ++t) {
     //    pthread_join(thr[t], 0);
     //}
@@ -1501,6 +1495,12 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
     free(fp_for_thresh_per_class);
 
     }
+
+
+    rewrite_cfg(net, cfgfile);
+    char buff[1024];
+    sprintf(buff, "final.weights");
+    save_weights(net, buff);
     
 
     fprintf(stderr, "Total Detection Time: %d Seconds\n", (int)(time(0) - start));
