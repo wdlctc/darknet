@@ -1263,19 +1263,19 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
 
     for (i = nthreads + itr; i < itr + m + nthreads; i += nthreads) {
         fprintf(stderr, "\r%d", i);
-        for (t = 0; t < nthreads && (i + t - nthreads) < m; ++t) {
+        for (t = 0; t < nthreads; ++t) {
             pthread_join(thr[t], 0);
             val[t] = buf[t];
             val_resized[t] = buf_resized[t];
         }
-        for (t = 0; t < nthreads && (i + t) < m; ++t) {
+        for (t = 0; t < nthreads; ++t) {
             const int image_index = (i + t) % m;
             args.path = paths[image_index];
             args.im = &buf[t];
             args.resized = &buf_resized[t];
             thr[t] = load_data_in_thread(args);
         }
-        for (t = 0; t < nthreads && i + t - nthreads < m; ++t) {
+        for (t = 0; t < nthreads; ++t) {
             const int image_index = (i + t - nthreads) % m;
             char *path = paths[image_index];
             char *id = basecfg(path);
