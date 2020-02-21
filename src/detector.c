@@ -1167,18 +1167,21 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
             l->quantized_switch = 1;
             quantized_time = 6;
             open = 0;
+            break;
         }
         else if(l->type == SHORTCUT && l->quantized_switch == 0) {
             current_layer = l;
             l->quantized_switch = 1;
             quantized_time = 3;
             open = 0;
+            break;
         }
         else if(l->type == ROUTE && l->quantized_switch == 0) {
             current_layer = l;
             l->quantized_switch = 1;
             quantized_time = 3;
             open = 0;
+            break;
         }
     }
     if(open == 1) break;
