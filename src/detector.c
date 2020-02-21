@@ -1158,12 +1158,16 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
         thr[t] = load_data_in_thread(args);
     }
     time_t start = time(0);
-    for (i = nthreads; i < m + nthreads; i += nthreads) {
-        if(i % 200 == nthreads)
-        {
-            int finish = quantized_network(net);
-            if(finish) break;
-        }
+
+    int itr;
+    for (itr = 0; itr < m + nthreads; itr += 200) {
+
+    int current_layer_type;
+    int current_layer_index;
+    int finish = quantized_network(net);
+    if(finish) break;
+
+    for (i = nthreads + itr; i < itr + 200 + nthreads; i += nthreads) {
         fprintf(stderr, "\r%d", i);
         for (t = 0; t < nthreads && (i + t - nthreads) < m; ++t) {
             pthread_join(thr[t], 0);
@@ -1466,6 +1470,7 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
         mean_average_precision += avg_precision;
     }
 
+
     const float cur_precision = (float)tp_for_thresh / ((float)tp_for_thresh + (float)fp_for_thresh);
     const float cur_recall = (float)tp_for_thresh / ((float)tp_for_thresh + (float)(unique_truth_count - tp_for_thresh));
     const float f1_score = 2.F * cur_precision * cur_recall / (cur_precision + cur_recall);
@@ -1495,6 +1500,9 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
     free(tp_for_thresh_per_class);
     free(fp_for_thresh_per_class);
 
+    }
+    
+
     fprintf(stderr, "Total Detection Time: %d Seconds\n", (int)(time(0) - start));
     printf("\nSet -points flag:\n");
     printf(" `-points 101` for MS COCO \n");
@@ -1522,7 +1530,7 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
     if (buf) free(buf);
     if (buf_resized) free(buf_resized);
 
-    return mean_average_precision;
+    return 0;
 }
 
 float validate_detector_map(char *datacfg, char *cfgfile, char *weightfile, float thresh_calc_avg_iou, const float iou_thresh, const int map_points, int letter_box, network *existing_net)
