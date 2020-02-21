@@ -1196,46 +1196,46 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
     int shift_in;
     int shift_out;
 
-    for(int j = 0; j < quantized_time; j++) {
+    for(int sub_itr = 0; sub_itr < quantized_time; sub_itr++) {
 
-        if(current_layer->type == CONVOLUTIONAL && j == 1){
+        if(current_layer->type == CONVOLUTIONAL && sub_itr == 1){
             current_layer->quantized_switch = 2;
             shift_in = (int)round(log2(*current_layer->max_value_in) ) + 1;
             *current_layer->max_in = current_layer->bitwidth - shift_in;
         }
-        if(current_layer->type == CONVOLUTIONAL && j == 2){
+        if(current_layer->type == CONVOLUTIONAL && sub_itr == 2){
             current_layer->quantized_switch = 2;
             *current_layer->max_in = current_layer->bitwidth - shift_in + 1;
         }
-        if(current_layer->type == CONVOLUTIONAL && j == 3){
+        if(current_layer->type == CONVOLUTIONAL && sub_itr == 3){
             current_layer->quantized_switch = 6;
         }
-        if(current_layer->type == CONVOLUTIONAL && j == 4){
+        if(current_layer->type == CONVOLUTIONAL && sub_itr == 4){
             current_layer->quantized_switch = 10;
             shift_out = (int)round(log2(*current_layer->max_value_out) ) + 1;
             *current_layer->max_out = current_layer->bitwidth - shift_out;
         }
-        if(current_layer->type == CONVOLUTIONAL && j == 5){
+        if(current_layer->type == CONVOLUTIONAL && sub_itr == 5){
             current_layer->quantized_switch = 10;
             *current_layer->max_out = current_layer->bitwidth - shift_out + 1;
         }
 
-        if(current_layer->type == SHORTCUT && j == 1){
+        if(current_layer->type == SHORTCUT && sub_itr == 1){
             current_layer->quantized_switch = 2;
             shift_out = (int)round(log2(*current_layer->max_value_out) ) + 1;
             *current_layer->max_out = current_layer->bitwidth - shift_out;
         }
-        if(current_layer->type == SHORTCUT && j == 2){
+        if(current_layer->type == SHORTCUT && sub_itr == 2){
             current_layer->quantized_switch = 2;
             *current_layer->max_out = current_layer->bitwidth - shift_out + 1;
         }
 
-        if(current_layer->type == ROUTE && j == 1){
+        if(current_layer->type == ROUTE && sub_itr == 1){
             current_layer->quantized_switch = 2;
             shift_out = (int)round(log2(*current_layer->max_value_out) ) + 1;
             *current_layer->max_out = current_layer->bitwidth - shift_out;
         }
-        if(current_layer->type == ROUTE && j == 2){
+        if(current_layer->type == ROUTE && sub_itr == 2){
             current_layer->quantized_switch = 2;
             *current_layer->max_out = current_layer->bitwidth - shift_out + 1;
         }
@@ -1548,10 +1548,10 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
         mean_average_precision += avg_precision;
     }
 
-    if(j == 1 || j == 4) {
+    if(sub_itr == 1 || sub_itr == 4) {
         max_average_precision = mean_average_precision;
     }
-    if(j == 2 && current_layer->type == SHORTCUT) {
+    if(sub_itr == 2 && current_layer->type == SHORTCUT) {
         if(mean_average_precision > max_average_precision) {
             shift_out -= 1;
             *current_layer->max_out = current_layer->bitwidth - shift_out;
@@ -1560,7 +1560,7 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
         }
         printf("SHORTCUT \n%d %f %d\n", layer_index, *current_layer->max_value_out,*current_layer->max_out);
     }
-    if(j == 2 && current_layer->type == ROUTE) {
+    if(sub_itr == 2 && current_layer->type == ROUTE) {
         if(mean_average_precision > max_average_precision) {
             shift_out -= 1;
             *current_layer->max_out = current_layer->bitwidth - shift_out;
@@ -1569,7 +1569,7 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
         }
         printf("ROUTE \n%d %f %d\n", layer_index, *current_layer->max_value_out,*current_layer->max_out);
     }
-    if(j == 2 && current_layer->type == CONVOLUTIONAL) {
+    if(sub_itr == 2 && current_layer->type == CONVOLUTIONAL) {
         current_layer->quantized_switch = 6;
         if(mean_average_precision > max_average_precision) {
             shift_in -= 1;
@@ -1579,7 +1579,7 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
         }
         printf("CONVOLUTIONAL \n%d %f %d\n", layer_index, *current_layer->max_value_in,*current_layer->max_in);
     }
-    if(j == 5 && current_layer->type == CONVOLUTIONAL) {
+    if(sub_itr == 5 && current_layer->type == CONVOLUTIONAL) {
         current_layer->quantized_switch = 10;
         if(mean_average_precision > max_average_precision) {
             shift_out -= 1;
@@ -1629,7 +1629,7 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
     if (reinforcement_fd != NULL) fclose(reinforcement_fd);
 
 
-    if (j != quantized_time - 1) {
+    if (sub_itr != quantized_time - 1) {
         itr += 200;
     }
 
