@@ -1163,6 +1163,7 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
     for(j = 0; j < net.n; ++j) {
         layer *l = &net.layers[j];
         if(l->type == CONVOLUTIONAL && l->quantized_switch == 0) {
+            layer_index = j;
             current_layer = l;
             l->quantized_switch = 1;
             quantized_time = 6;
@@ -1170,6 +1171,7 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
             break;
         }
         else if(l->type == SHORTCUT && l->quantized_switch == 0) {
+            layer_index = j;
             current_layer = l;
             l->quantized_switch = 1;
             quantized_time = 3;
@@ -1177,6 +1179,7 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
             break;
         }
         else if(l->type == ROUTE && l->quantized_switch == 0) {
+            layer_index = j;
             current_layer = l;
             l->quantized_switch = 1;
             quantized_time = 3;
@@ -1552,6 +1555,7 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
         } else {
             *current_layer->max_out = current_layer->bitwidth - shift_out;
         }
+        printf("SHORTCUT \n%d %f %d\n", layer_index, *current_layer->max_value_out,*current_layer->max_out);
     }
     if(j == 2 && current_layer->type == ROUTE) {
         if(mean_average_precision > max_average_precision) {
@@ -1560,6 +1564,7 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
         } else {
             *current_layer->max_out = current_layer->bitwidth - shift_out;
         }
+        printf("ROUTE \n%d %f %d\n", layer_index, *current_layer->max_value_out,*current_layer->max_out);
     }
     if(j == 2 && current_layer->type == CONVOLUTIONAL) {
         current_layer->quantized_switch = 6;
@@ -1569,6 +1574,7 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
         } else {
             *current_layer->max_in = current_layer->bitwidth - shift_in;
         }
+        printf("CONVOLUTIONAL \n%d %f %d\n", layer_index, *current_layer->max_value_in,*current_layer->max_in);
     }
     if(j == 5 && current_layer->type == CONVOLUTIONAL) {
         current_layer->quantized_switch = 10;
@@ -1578,6 +1584,7 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
         } else {
             *current_layer->max_out = current_layer->bitwidth - shift_out;
         }
+        printf("CONVOLUTIONAL \n%d %f %d\n", layer_index, *current_layer->max_value_out,*current_layer->max_out);
     }
 
     const float cur_precision = (float)tp_for_thresh / ((float)tp_for_thresh + (float)fp_for_thresh);
