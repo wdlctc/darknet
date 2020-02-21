@@ -1505,6 +1505,8 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
     printf(" `-points 0` (AUC) for ImageNet, PascalVOC 2010-2012, your custom dataset\n");
     if (reinforcement_fd != NULL) fclose(reinforcement_fd);
 
+    }
+    
     // free memory
     free_ptrs((void**)names, net.layers[net.n - 1].classes);
     free_list_contents_kvp(options);
@@ -1518,7 +1520,6 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
     }
     else {
         free_network(net);
-    }
     }
 
 
