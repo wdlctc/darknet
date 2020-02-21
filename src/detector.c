@@ -1153,7 +1153,7 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
     time_t start = time(0);
 
     int itr;
-    for (itr = 0;; itr += m) {
+    for (itr = 0; itr>=0; itr += m) {
 
     
     layer *current_layer;
