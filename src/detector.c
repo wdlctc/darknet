@@ -1580,7 +1580,6 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
     printf(" mean average precision (mAP@%0.2f) = %f, or %2.2f %% \n", iou_thresh, mean_average_precision, mean_average_precision * 100);
 
 
-    }
 
 
     for (i = 0; i < classes; ++i) {
@@ -1603,6 +1602,8 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
     printf(" `-points 0` (AUC) for ImageNet, PascalVOC 2010-2012, your custom dataset\n");
     if (reinforcement_fd != NULL) fclose(reinforcement_fd);
 
+    }
+    
     }
 
     rewrite_cfg(net, cfgfile);
