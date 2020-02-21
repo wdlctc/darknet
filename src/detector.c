@@ -1149,8 +1149,82 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
         thr[t] = load_data_in_thread(args);
     }
     
+    time_t start = time(0);
+
     int itr;
     for (itr = 0; itr < m + nthreads; itr += 200) {
+
+    
+    layer *current_layer;
+    int layer_type;
+    int layer_index;
+    int quantized_time;
+    for(j = 0; j < net.n; ++j) {
+        layer *l = &net.layers[j];
+        if(l->type == CONVOLUTIONAL && l->quantized_switch == 0) {
+            current_layer = l;
+            l->quantized_switch = 1;
+            quantized_time = 6;
+        }
+        else if(l->type == SHORTCUT && l->quantized_switch == 0) {
+            current_layer = l;
+            l->quantized_switch = 1;
+            quantized_time = 3;
+        }
+        else if(l->type == ROUTE && l->quantized_switch == 0) {
+            current_layer = l;
+            l->quantized_switch = 1;
+            quantized_time = 3;
+        }
+    }
+
+    double max_average_precision = 0.0;
+    int shift_in;
+    int shift_out;
+
+    for(int j = 0; j < quantized_time; j++) {
+
+        if(current_layer->type == CONVOLUTIONAL && j == 1){
+            current_layer->quantized_switch = 2;
+            shift_in = (int)round(log2(*current_layer->max_value_in) ) + 1;
+            *current_layer->max_in = current_layer->bitwidth - shift_in;
+        }
+        if(current_layer->type == CONVOLUTIONAL && j == 2){
+            current_layer->quantized_switch = 2;
+            *current_layer->max_in = current_layer->bitwidth - shift_in + 1;
+        }
+        if(current_layer->type == CONVOLUTIONAL && j == 3){
+            current_layer->quantized_switch = 6;
+        }
+        if(current_layer->type == CONVOLUTIONAL && j == 4){
+            current_layer->quantized_switch = 10;
+            shift_out = (int)round(log2(*current_layer->max_value_out) ) + 1;
+            *current_layer->max_out = current_layer->bitwidth - shift_out;
+        }
+        if(current_layer->type == CONVOLUTIONAL && j == 5){
+            current_layer->quantized_switch = 10;
+            *current_layer->max_out = current_layer->bitwidth - shift_out + 1;
+        }
+
+        if(current_layer->type == SHORTCUT && j == 1){
+            current_layer->quantized_switch = 2;
+            shift_out = (int)round(log2(*current_layer->max_value_out) ) + 1;
+            *current_layer->max_out = current_layer->bitwidth - shift_out;
+        }
+        if(current_layer->type == SHORTCUT && j == 2){
+            current_layer->quantized_switch = 2;
+            *current_layer->max_out = current_layer->bitwidth - shift_out + 1;
+        }
+
+        if(current_layer->type == ROUTE && j == 1){
+            current_layer->quantized_switch = 2;
+            shift_out = (int)round(log2(*current_layer->max_value_out) ) + 1;
+            *current_layer->max_out = current_layer->bitwidth - shift_out;
+        }
+        if(current_layer->type == ROUTE && j == 2){
+            current_layer->quantized_switch = 2;
+            *current_layer->max_out = current_layer->bitwidth - shift_out + 1;
+        }
 
     box_prob* detections = (box_prob*)xcalloc(1, sizeof(box_prob));
     int detections_count = 0;
@@ -1162,13 +1236,6 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
     float *avg_iou_per_class = (float*)xcalloc(classes, sizeof(float));
     int *tp_for_thresh_per_class = (int*)xcalloc(classes, sizeof(int));
     int *fp_for_thresh_per_class = (int*)xcalloc(classes, sizeof(int));
-
-    time_t start = time(0);
-
-    int current_layer_type;
-    int current_layer_index;
-    int finish = quantized_network(net);
-    if(finish) break;
 
     for (i = nthreads + itr; i < itr + 200 + nthreads; i += nthreads) {
         fprintf(stderr, "\r%d", i);
@@ -1457,8 +1524,8 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
             avg_precision = avg_precision / map_points;
         }
 
-        printf("class_id = %d, name = %s, ap = %2.2f%%   \t (TP = %d, FP = %d) \n",
-            i, names[i], avg_precision * 100, tp_for_thresh_per_class[i], fp_for_thresh_per_class[i]);
+        // printf("class_id = %d, name = %s, ap = %2.2f%%   \t (TP = %d, FP = %d) \n",
+        //     i, names[i], avg_precision * 100, tp_for_thresh_per_class[i], fp_for_thresh_per_class[i]);
 
         float class_precision = (float)tp_for_thresh_per_class[i] / ((float)tp_for_thresh_per_class[i] + (float)fp_for_thresh_per_class[i]);
         float class_recall = (float)tp_for_thresh_per_class[i] / ((float)tp_for_thresh_per_class[i] + (float)(truth_classes_count[i] - tp_for_thresh_per_class[i]));
@@ -1467,6 +1534,49 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
         mean_average_precision += avg_precision;
     }
 
+    if(j == 1 || j == 4) {
+        max_average_precision = mean_average_precision;
+    }
+    if(j == 2 && current_layer->type == SHORTCUT) {
+        if(mean_average_precision > max_average_precision) {
+            shift_out -= 1;
+            *current_layer->max_out = current_layer->bitwidth - shift_out;
+        } else {
+            *current_layer->max_out = current_layer->bitwidth - shift_out;
+        }
+    }
+    if(j == 2 && current_layer->type == ROUTE) {
+        if(mean_average_precision > max_average_precision) {
+            shift_out -= 1;
+            *current_layer->max_out = current_layer->bitwidth - shift_out;
+        } else {
+            *current_layer->max_out = current_layer->bitwidth - shift_out;
+        }
+    }
+    if(j == 2 && current_layer->type == CONVOLUTIONAL) {
+        current_layer->quantized_switch = 6;
+        if(mean_average_precision > max_average_precision) {
+            shift_in -= 1;
+            *current_layer->max_in = current_layer->bitwidth - shift_in;
+        } else {
+            *current_layer->max_in = current_layer->bitwidth - shift_in;
+        }
+    }
+    if(j == 5 && current_layer->type == CONVOLUTIONAL) {
+        current_layer->quantized_switch = 10;
+        if(mean_average_precision > max_average_precision) {
+            shift_out -= 1;
+            *current_layer->max_out = current_layer->bitwidth - shift_out;
+        } else {
+            *current_layer->max_out = current_layer->bitwidth - shift_out;
+        }
+    }
+
+    if (j != quantized_time - 1) {
+        itr += 200;
+    }
+
+    }
 
     const float cur_precision = (float)tp_for_thresh / ((float)tp_for_thresh + (float)fp_for_thresh);
     const float cur_recall = (float)tp_for_thresh / ((float)tp_for_thresh + (float)(unique_truth_count - tp_for_thresh));
