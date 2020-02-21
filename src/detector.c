@@ -1122,6 +1122,10 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
 
     int nthreads = 4;
     if (m < 4) nthreads = m;
+
+    int itr;
+    for (itr = 0; itr < m + nthreads; itr += 200) {
+
     image* val = (image*)xcalloc(nthreads, sizeof(image));
     image* val_resized = (image*)xcalloc(nthreads, sizeof(image));
     image* buf = (image*)xcalloc(nthreads, sizeof(image));
@@ -1159,15 +1163,12 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
     }
     time_t start = time(0);
 
-    int itr;
-    for (itr = 0; itr < m + nthreads; itr += 200) {
-
     int current_layer_type;
     int current_layer_index;
     int finish = quantized_network(net);
     if(finish) break;
 
-    for (i = nthreads + itr; i < itr + 200 + nthreads; i += nthreads) {
+    for (i = nthreads ; i < 200 + nthreads; i += nthreads) {
         fprintf(stderr, "\r%d", i);
         for (t = 0; t < nthreads && (i + t - nthreads) < m; ++t) {
             pthread_join(thr[t], 0);
@@ -1494,14 +1495,6 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
     free(tp_for_thresh_per_class);
     free(fp_for_thresh_per_class);
 
-    }
-
-
-    rewrite_cfg(net, cfgfile);
-    char buff[1024];
-    sprintf(buff, "final.weights");
-    save_weights(net, buff);
-    
 
     fprintf(stderr, "Total Detection Time: %d Seconds\n", (int)(time(0) - start));
     printf("\nSet -points flag:\n");
@@ -1530,6 +1523,14 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
     if (buf) free(buf);
     if (buf_resized) free(buf_resized);
 
+    }
+
+
+    rewrite_cfg(net, cfgfile);
+    char buff[1024];
+    sprintf(buff, "final.weights");
+    save_weights(net, buff);
+    
     return 0;
 }
 
