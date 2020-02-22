@@ -1575,6 +1575,9 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
         } else {
             *current_layer->max_out = current_layer->bitwidth - shift_out;
         }
+        for(j = 0; j < current_layer->n; ++j) {
+            *net.layers[current_layer->input_layers[j]].max_out = *current_layer->max_out;
+        }
         printf("ROUTE \n%d %f %d\n", layer_index, *current_layer->max_value_out,*current_layer->max_out);
     }
     if(sub_itr == 2 && current_layer->type == CONVOLUTIONAL) {
