@@ -877,7 +877,7 @@ void rewrite_cfg(network net, char *filename)
             //l->quantized_switch = 3;
             int off = 1;
 
-            sprintf(buff, "quantized_switch=2\n");
+            sprintf(buff, "quantized_switch=10\n");
             //printf("layer %d, max_in=%d\n",nu,*l->max_in);
             curr = strlen(buff);
             fwrite(buff, 1, curr, output_file);
@@ -1183,16 +1183,41 @@ float quantize_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
         }
         else if(l->type == ROUTE && l->quantized_switch == 0) {
             printf("ROUTE \n%d\n", j);
-            layer_index = j;
-            current_layer = l;
-            l->quantized_switch = 1;
-            quantized_time = 3;
-            open = 0;
+
+            int k;
+            int max_out = 32;
+            for(k = 0; k < l->n; ++k){
+                int index = l->input_layers[k];
+                if(net.layers[index].type != CONVOLUTIONAL && net.layers[index].type != SHORTCUT){
+                    index--;
+                }
+            
+                if(*net.layers[index].max_out < max_out) {
+                    max_out = *net.layers[index].max_out;
+                }
+            }
+
+            *l->max_out = max_out;
+            l->quantized_switch = 2;
+
+            for(k = 0; k < l->n; ++k){
+                int index = l->input_layers[k];
+                while(net.layers[index].type != CONVOLUTIONAL && net.layers[index].type != SHORTCUT){
+                    index--;
+                }
+                *net.layers[index].max_out = max_out;
+            }
+
+            open = 2;
             break;
+
         }
     }
     if(open == 1) break;
-
+    if(open == 2){
+        itr-=m;
+        continue;
+    }
     double max_average_precision = 0.0;
     int shift_in;
     int shift_out;
