@@ -214,6 +214,8 @@ struct layer {
 
     int quantized_switch;
     int bitwidth;
+    int exp_bits;
+    int man_bits;
     int* max_bias;
     int* max_w;
     int* max_in;

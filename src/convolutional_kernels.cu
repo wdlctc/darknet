@@ -458,6 +458,9 @@ void forward_convolutional_layer_gpu(convolutional_layer l, network_state state)
 
         // Trim2FixedPoint_gpu(l.c*l.h*l.w*l.batch, 0, state.input, l.fix_input_gpu, 1, l.bitwidth, 0, *l.max_in);
         // state.input = l.fix_input_gpu;
+    } else if(l.man_bits && l.exp_bits){
+        Trim2FloatPoint_gpu(l.c*l.h*l.w*l.batch, state.input, l.fix_input_gpu, l.man_bits, l.exp_bits, 0);
+        state.input = l.fix_input_gpu;
     }
     //fill_ongpu(l.outputs*l.batch, 0, l.output_gpu, 1);
 
@@ -702,6 +705,10 @@ void forward_convolutional_layer_gpu(convolutional_layer l, network_state state)
         {
             Trim2FixedPoint_gpu(l.outputs*l.batch, 0, l.output_gpu, l.output_gpu, 1, l.bitwidth, 0, *l.max_out);
         }
+    } else if(l.man_bits && l.exp_bits){
+        Trim2FloatPoint_gpu(l.outputs*l.batch, l.output_gpu, l.output_gpu, l.man_bits, l.exp_bits, 0);
+        //Trim2FloatPoint_gpu(l.c*l.h*l.w*l.batch, state.input, l.fix_input_gpu, l.man_bits, l.exp_bits, 0);
+        //state.input = l.fix_input_gpu;
     }
 }
 

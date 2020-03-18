@@ -240,6 +240,8 @@ convolutional_layer parse_convolutional(list *options, size_params params)
     layer.max_value_out    = calloc(1, sizeof(float));
 
     layer.bitwidth = option_find_float_quiet(options, "bitwidth", 0);
+    layer.man_bits = option_find_float_quiet(options, "man_bits", 0);
+    layer.exp_bits = option_find_float_quiet(options, "exp_bits", 0);
     layer.quantized_switch = option_find_float_quiet(options, "quantized_switch", 0);
     layer.max_in[0] = option_find_float_quiet(options, "max_in", -16);
     layer.max_out[0] = option_find_float_quiet(options, "max_out", -16);
