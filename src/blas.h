@@ -49,6 +49,7 @@ void normalize_delta_cpu(float *x, float *mean, float *variance, float *mean_del
 
 void Trim2FixedPoint_gpu(int N, float ALPHA, float * X, float * Y, int INCX, int bit_width, int rounding, int fl);
 void Trim2FloatPoint_gpu(int N, float * X, float * Y, int man_bits, int exp_bits, int rounding);
+void Trim2Block_gpu(int N, float * X, float * Y, int bit_width, int rounding, float max_entry);
 void bitonic_sort_gpu(int N, float* array, float* output);
 
 void smooth_l1_cpu(int n, float *pred, float *truth, float *delta, float *error);

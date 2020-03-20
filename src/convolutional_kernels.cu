@@ -445,6 +445,22 @@ void forward_convolutional_layer_gpu(convolutional_layer l, network_state state)
             Trim2FixedPoint_gpu(l.c*l.h*l.w*l.batch, 0, state.input, l.fix_input_gpu, 1, l.bitwidth, 0, *l.max_in);
             state.input = l.fix_input_gpu;
         }
+
+        if(l.quantized_switch & 32)
+        {
+            float delta_max = 0;
+            cudaMemcpy(l.fix_input, state.input, l.c*l.h*l.w*l.batch*sizeof(float), cudaMemcpyDeviceToHost);
+            for(int i = 0; i < l.c*l.h*l.w*l.batch; i++)
+            {
+                if(delta_max < abs(l.fix_input[i]))
+                {
+                    delta_max = abs(l.fix_input[i]);
+                }
+            }
+            Trim2Block_gpu(l.c*l.h*l.w*l.batch, state.input, l.fix_input_gpu, l.bitwidth, 0, delta_max);
+            state.input = l.fix_input_gpu;
+            //Trim2Block_gpu(l.outputs*l.batch, l.output_gpu, l.output_gpu, l.bitwidth, 0, delta_max);
+        }
         //cudaMemcpy(l.fix_input, state.input, l.c*l.h*l.w*l.batch*sizeof(float), cudaMemcpyDeviceToHost);
 
         // for(int i = 0; i < l.c*l.h*l.w*l.batch; i++)
@@ -704,6 +720,20 @@ void forward_convolutional_layer_gpu(convolutional_layer l, network_state state)
         if(l.quantized_switch & 8)
         {
             Trim2FixedPoint_gpu(l.outputs*l.batch, 0, l.output_gpu, l.output_gpu, 1, l.bitwidth, 0, *l.max_out);
+        }
+
+        if(l.quantized_switch & 32)
+        {
+            float delta_max = 0;
+            cudaMemcpy(l.fix_output, l.output_gpu, l.outputs*l.batch*sizeof(float), cudaMemcpyDeviceToHost);
+            for(int i = 0; i < l.outputs*l.batch; i++)
+            {
+                if(delta_max < abs(l.fix_output[i]))
+                {
+                    delta_max = abs(l.fix_output[i]);
+                }
+            }
+            Trim2Block_gpu(l.outputs*l.batch, l.output_gpu, l.output_gpu, l.bitwidth, 0, delta_max);
         }
     } else if(l.man_bits && l.exp_bits){
         Trim2FloatPoint_gpu(l.outputs*l.batch, l.output_gpu, l.output_gpu, l.man_bits, l.exp_bits, 0);
