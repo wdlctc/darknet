@@ -211,7 +211,9 @@ __global__ void Trim2FBlock_kernel(int N, float * X, float * Y, int bit_width, i
     int i = (blockIdx.x + blockIdx.y*gridDim.x) * blockDim.x + threadIdx.x;
     if (i >= N) return;
 
-    unsigned int max_entry_bits = FLOAT_TO_BITS(&max_entry);
+    float max_value = max_entry;
+
+    unsigned int max_entry_bits = FLOAT_TO_BITS(&max_value);
     unsigned int max_exp = max_entry_bits << 1 >> 24 << 23;
     float base_float = 6 * BITS_TO_FLOAT(&max_exp);
 
