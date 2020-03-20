@@ -223,7 +223,7 @@ __global__ void Trim2FBlock_kernel(int N, float * X, float * Y, int bit_width, i
     float quantize_float = BITS_TO_FLOAT(&quantized)-base_float;
 
     unsigned int quantize_bits = FLOAT_TO_BITS(&quantize_float); 
-    unsigned int clip_quantize = clip_max_exponent(bit_width-2, max_exp, quantize_bits);
+    unsigned int clip_quantize = clip_max_exponent(bit_width, max_exp, quantize_bits);
     quantize_float = BITS_TO_FLOAT(&clip_quantize);
     Y[i] = quantize_float;
 }
