@@ -175,11 +175,21 @@ __device__ __forceinline__ unsigned int clip_exponent(int exp_bits, int man_bits
     return quantized_num;
 }
 
+__device__ __forceinline__ unsigned int clip_max_exponent(int man_bits,
+                                                          unsigned int max_exponent,
+                                                          unsigned int quantized_num) {
+    unsigned int quantized_exponent = quantized_num << 1 >> 24 << 23; // 1 sign bit, 23 mantissa bits
+    if (quantized_exponent > max_exponent) {
+        unsigned int max_man = (unsigned int ) -1 << 9 >> 9 >> (23-man_bits) << (23-man_bits); // 1 sign bit, 8 exponent bits
+        unsigned int max_num = max_exponent | max_man;
+        unsigned int old_sign = quantized_num >> 31 << 31;
+        quantized_num = old_sign | max_num;
+    }
+    return quantized_num;
+}
+
 __global__ void Trim2FloatPoint_kernel(int N, float * X, float * Y, int man_bits, int exp_bits, int rounding)
 {   
-    float max_data = (powf(2, bit_width - 1) - 1) * powf(2, -fl);
-    float min_data = (-powf(2, bit_width - 1) + 1) * powf(2, -fl);
-    
     int i = (blockIdx.x + blockIdx.y*gridDim.x) * blockDim.x + threadIdx.x;
     if (i >= N) return;
 
@@ -192,7 +202,33 @@ __global__ void Trim2FloatPoint_kernel(int N, float * X, float * Y, int man_bits
 
 extern "C" void Trim2FloatPoint_gpu(int N, float * X, float * Y, int man_bits, int exp_bits, int rounding)
 {
-    Trim2FloatPoint_kernel<<<cuda_gridsize(N), BLOCK>>>(N, ALPHA, X, Y, man_bits, exp_bits, rounding, fl);
+    Trim2FloatPoint_kernel<<<cuda_gridsize(N), BLOCK>>>(N, X, Y, man_bits, exp_bits, rounding);
+    check_error(cudaPeekAtLastError());
+}
+
+__global__ void Trim2FBlock_kernel(int N, float * X, float * Y, int bit_width, int rounding, float max_entry)
+{  
+    int i = (blockIdx.x + blockIdx.y*gridDim.x) * blockDim.x + threadIdx.x;
+    if (i >= N) return;
+
+    unsigned int max_entry_bits = FLOAT_TO_BITS(&max_entry);
+    unsigned int max_exp = max_entry_bits << 1 >> 24 << 23;
+    float base_float = 6 * BITS_TO_FLOAT(&max_exp);
+
+    float target_rebase = X[i] + base_float;
+    unsigned int target_bits = FLOAT_TO_BITS(&target_rebase);
+    unsigned int quantized = round_bitwise_nearest(target_bits, bit_width);
+    float quantized_float = BITS_TO_FLOAT(&quantized)-base_float;
+
+    unsigned int quantize_bits = FLOAT_TO_BITS(&quantize_float); 
+    unsigned int clip_quantize = clip_max_exponent(bit_width-2, max_exp, quantize_bits);
+    quantize_float = BITS_TO_FLOAT(&clip_quantize);
+    Y[index] = quantize_float;
+}
+
+extern "C" void Trim2Block_gpu(int N, float * X, float * Y, int bit_width, int rounding, float max_entry)
+{
+    Trim2FBlock_kernel<<<cuda_gridsize(N), BLOCK>>>(N, X, Y, bit_width, rounding, max_entry);
     check_error(cudaPeekAtLastError());
 }
 

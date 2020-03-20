@@ -902,6 +902,9 @@ layer parse_shortcut(list *options, size_params params, network net)
     s.quantized_switch = option_find_float_quiet(options, "quantized_switch", 0);
     s.max_out[0] = option_find_float_quiet(options, "max_out", -16);
 
+    s.man_bits = option_find_float_quiet(options, "man_bits", 0);
+    s.exp_bits = option_find_float_quiet(options, "exp_bits", 0);
+
     free(layers_output_gpu);
     free(layers_delta_gpu);
 
