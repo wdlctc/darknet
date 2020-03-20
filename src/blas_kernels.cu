@@ -197,7 +197,7 @@ __global__ void Trim2FloatPoint_kernel(int N, float * X, float * Y, int man_bits
     unsigned int quantize = round_bitwise_nearest(old_num, man_bits);
     quantize = clip_exponent(exp_bits, man_bits, old_num, quantize);
     float quantize_float = BITS_TO_FLOAT(&quantize);
-    Y[index] = quantize_float;
+    Y[i] = quantize_float;
 }
 
 extern "C" void Trim2FloatPoint_gpu(int N, float * X, float * Y, int man_bits, int exp_bits, int rounding)
@@ -218,12 +218,12 @@ __global__ void Trim2FBlock_kernel(int N, float * X, float * Y, int bit_width, i
     float target_rebase = X[i] + base_float;
     unsigned int target_bits = FLOAT_TO_BITS(&target_rebase);
     unsigned int quantized = round_bitwise_nearest(target_bits, bit_width);
-    float quantized_float = BITS_TO_FLOAT(&quantized)-base_float;
+    float quantize_float = BITS_TO_FLOAT(&quantized)-base_float;
 
     unsigned int quantize_bits = FLOAT_TO_BITS(&quantize_float); 
     unsigned int clip_quantize = clip_max_exponent(bit_width-2, max_exp, quantize_bits);
     quantize_float = BITS_TO_FLOAT(&clip_quantize);
-    Y[index] = quantize_float;
+    Y[i] = quantize_float;
 }
 
 extern "C" void Trim2Block_gpu(int N, float * X, float * Y, int bit_width, int rounding, float max_entry)
